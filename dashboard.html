@@ -57,6 +57,18 @@
       font-size: 12px; 
       opacity: 0.9; 
     }
+
+    /* --- TAMBAHAN: Style untuk Badge Role --- */
+    .role-badge {
+      background: rgba(255, 255, 255, 0.25);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
     
     .logout-btn {
       background: rgba(255, 255, 255, 0.2);
@@ -91,8 +103,9 @@
     }
     
     .menu-grid {
+      /* Diubah ke auto-fit agar lebih responsif di HP (minimal 200px per kartu) */
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 15px;
       margin-top: 15px;
     }
@@ -120,12 +133,23 @@
       margin-bottom: 8px; 
       font-size: 16px;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .menu-card p { 
       font-size: 13px; 
       opacity: 0.85;
       line-height: 1.4;
+    }
+
+    .loading-text {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: #666;
+      padding: 30px;
+      font-style: italic;
     }
   </style>
 </head>
@@ -137,6 +161,8 @@
       <div class="user-info">
         <div id="userName">Memuat data...</div>
         <div class="user-email" id="userEmail"></div>
+        <!-- Badge Role Ditambahkan Di Sini -->
+        <div class="role-badge" id="userRole">Role: ...</div>
         <button class="logout-btn" onclick="prosesLogout()">🚪 Logout</button>
       </div>
     </div>
@@ -145,21 +171,9 @@
       <h2>Menu Utama</h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
-      <div class="menu-grid">
-        <a href="#" class="menu-card">
-          <h3>📊 Dashboard Pengujian</h3>
-          <p>Lihat status pengujian (Coming Soon)</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📝 Daftar Pengujian</h3>
-          <p>Kelola pengajuan pengujian (Coming Soon)</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📖 Katalog Lab</h3>
-          <p>Lihat katalog lengkap (Coming Soon)</p>
-        </a>
+      <!-- Container Kosong untuk diisi oleh JavaScript -->
+      <div class="menu-grid" id="menuGrid">
+        <div class="loading-text">Memuat menu sesuai hak akses...</div>
       </div>
     </div>
   </div>
@@ -170,15 +184,77 @@
       window.location.replace('index.html');
     }
     
-    // 2. Ambil data user dari localStorage (pastikan ini sudah diset di halaman login)
+    // 2. Ambil data user dari localStorage
     const name = localStorage.getItem('user_name') || 'Pengguna';
     const email = localStorage.getItem('user_email') || 'tidak tersedia';
+    const role = localStorage.getItem('user_role') || 'users';
+    const menusStr = localStorage.getItem('user_menus');
     
-    // 3. Tampilkan pesan selamat datang sesuai format yang diminta
+    // 3. Tampilkan pesan selamat datang dan role
     document.getElementById('userName').textContent = `Selamat Datang, ${name}`;
-    document.getElementById('userEmail').textContent = `${email}`;
+    document.getElementById('userEmail').textContent = `dengan email ${email}`;
     
-    // 4. Fungsi logout - TANPA CONFIRM (karena diblokir di sandboxed iframe)
+    // Format role agar huruf pertama kapital (users -> Users)
+    const formattedRole = role.charAt(0).toUpperCase() + role.slice(1);
+    document.getElementById('userRole').textContent = `Role: ${formattedRole}`;
+    
+    // 4. Fungsi untuk merender menu secara dinamis
+    function renderMenus() {
+      const menuGrid = document.getElementById('menuGrid');
+      menuGrid.innerHTML = ''; // Hapus teks loading
+      
+      let menus = [];
+      
+      // Coba parse menu dari localStorage (yang dikirim saat login)
+      if (menusStr) {
+        try {
+          menus = JSON.parse(menusStr);
+        } catch (e) {
+          console.error("Gagal memparse data menu:", e);
+        }
+      }
+      
+      // FALLBACK: Jika data menu kosong (misal user refresh paksa), gunakan default
+      if (menus.length === 0) {
+        const fallbackMenus = {
+          'manajemen': [
+            { name: 'Monitoring Pengujian', icon: '📊', link: 'monitoring-pengujian.html' },
+            { name: 'Monitoring Alat', icon: '🔧', link: 'monitoring-alat.html' },
+            { name: 'Rekap Keuangan', icon: '💰', link: 'rekap-keuangan.html' },
+            { name: 'Katalog Lab', icon: '📖', link: 'katalog.html' }
+          ],
+          'staff': [
+            { name: 'Status Pengujian', icon: '📝', link: 'status-pengujian.html' },
+            { name: 'Monitoring Pengujian', icon: '📊', link: 'monitoring-pengujian.html' },
+            { name: 'Monitoring Alat', icon: '🔧', link: 'monitoring-alat.html' },
+            { name: 'Katalog Lab', icon: '📖', link: 'katalog.html' }
+          ],
+          'users': [
+            { name: 'Daftar Pengujian', icon: '📋', link: 'daftar-pengujian.html' },
+            { name: 'Status Pengujian', icon: '📝', link: 'status-pengujian.html' },
+            { name: 'Katalog Lab', icon: '📖', link: 'katalog.html' }
+          ]
+        };
+        menus = fallbackMenus[role] || fallbackMenus['users'];
+      }
+
+      // Buat elemen HTML untuk setiap menu
+      menus.forEach(menu => {
+        const card = document.createElement('a');
+        card.href = menu.link || '#';
+        card.className = 'menu-card';
+        card.innerHTML = `
+          <h3>${menu.icon || '📄'} ${menu.name}</h3>
+          <p>Akses fitur ${menu.name.toLowerCase()} laboratorium</p>
+        `;
+        menuGrid.appendChild(card);
+      });
+    }
+
+    // Jalankan fungsi render
+    renderMenus();
+    
+    // 5. Fungsi logout - TANPA CONFIRM
     function prosesLogout() {
       // Hapus semua data sesi
       localStorage.clear();
