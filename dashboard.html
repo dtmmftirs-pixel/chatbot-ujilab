@@ -135,8 +135,7 @@
       <div class="user-info">
         <div id="userName">Loading...</div>
         <div class="user-email" id="userEmail"></div>
-        <!-- Pastikan onclick memanggil fungsi logout() -->
-        <button class="logout-btn" onclick="prosesLogout()">🚪 Logout</button>
+        <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
       </div>
     </div>
     
@@ -169,39 +168,29 @@
   </div>
 
   <script>
-    // 1. CEK SESI SEDERHANA (Tanpa Role)
-    // Jika tidak ada tanda 'isLoggedIn', langsung lempar ke halaman login
+    // Cek sesi - jika belum login, redirect ke index
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-      window.location.replace('index.html');
+      window.location.href = 'index.html';
     }
     
-    // 2. TAMPILKAN INFO USER (Hanya nama & email, tanpa role)
-    const name = localStorage.getItem('user_name') || 'Pengguna';
-    const email = localStorage.getItem('user_email') || '';
+    // Tampilkan info user
+    document.getElementById('userName').textContent = localStorage.getItem('user_name') || 'User';
+    document.getElementById('userEmail').textContent = localStorage.getItem('user_email') || '';
     
-    document.getElementById('userName').textContent = name;
-    document.getElementById('userEmail').textContent = email;
-    
-    // 3. FUNGSI LOGOUT YANG DIPASTIKAN BERFUNGSI
-    function prosesLogout() {
-      console.log("Tombol logout diklik"); // Untuk debugging di Console browser
-      
-      const yakin = confirm('Apakah Anda yakin ingin keluar dari sistem?');
+    // ============================================
+    // FUNGSI LOGOUT - MENGGUNAKAN addEventListener
+    // ============================================
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      var yakin = confirm('Apakah Anda yakin ingin logout?');
       
       if (yakin) {
-        console.log("Menghapus semua data sesi...");
+        // Hapus semua data localStorage
+        localStorage.clear();
         
-        // Hapus SEMUA data di localStorage untuk halaman ini
-        // Ini lebih aman dan pasti daripada removeItem satu per satu
-        localStorage.clear(); 
-        
-        console.log("Redirect ke halaman login...");
-        
-        // Gunakan .replace() bukan .href agar halaman dashboard tidak tersimpan 
-        // di history browser (mencegah user klik tombol "Back" dan masuk lagi)
-        window.location.replace('index.html');
+        // Redirect ke halaman login
+        window.location.href = 'index.html';
       }
-    }
+    });
   </script>
 </body>
 </html>
