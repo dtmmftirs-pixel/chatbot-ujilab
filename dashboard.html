@@ -45,12 +45,12 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 6px;
+      gap: 4px;
     }
     
     #userName {
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14px;
     }
     
     .user-email { 
@@ -68,6 +68,7 @@
       font-size: 12px;
       font-weight: 600;
       transition: all 0.3s ease;
+      margin-top: 4px;
     }
     
     .logout-btn:hover { 
@@ -134,7 +135,7 @@
       <h1>Smart Lab Dashboard<br>
       Departemen Teknik Material dan Metalurgi</h1>
       <div class="user-info">
-        <div id="userName">Loading...</div>
+        <div id="userName">Memuat data...</div>
         <div class="user-email" id="userEmail"></div>
         <button class="logout-btn" onclick="prosesLogout()">🚪 Logout</button>
       </div>
@@ -145,13 +146,6 @@
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
       <div class="menu-grid">
-        <!--
-        <a href="widget.html" class="menu-card">
-          <h3>💬 Chatbot Asisten</h3>
-          <p>Akses chatbot untuk customer</p>
-        </a>
-        -->
-        
         <a href="#" class="menu-card">
           <h3>📊 Dashboard Pengujian</h3>
           <p>Lihat status pengujian (Coming Soon)</p>
@@ -171,19 +165,20 @@
   </div>
 
   <script>
-    // Cek sesi - jika tidak ada flag isLoggedIn, redirect ke login
+    // 1. Cek sesi - jika tidak ada flag isLoggedIn, redirect ke login
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       window.location.replace('index.html');
     }
     
-    // Tampilkan info user
+    // 2. Ambil data user dari localStorage (pastikan ini sudah diset di halaman login)
     const name = localStorage.getItem('user_name') || 'Pengguna';
-    const email = localStorage.getItem('user_email') || '';
+    const email = localStorage.getItem('user_email') || 'tidak tersedia';
     
-    document.getElementById('userName').textContent = name;
-    document.getElementById('userEmail').textContent = email;
+    // 3. Tampilkan pesan selamat datang sesuai format yang diminta
+    document.getElementById('userName').textContent = `Selamat Datang, ${name}`;
+    document.getElementById('userEmail').textContent = `dengan email ${email}`;
     
-    // Fungsi logout - TANPA CONFIRM (karena diblokir di sandboxed iframe)
+    // 4. Fungsi logout - TANPA CONFIRM (karena diblokir di sandboxed iframe)
     function prosesLogout() {
       // Hapus semua data sesi
       localStorage.clear();
