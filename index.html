@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Lab - Login</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 450px;
+      width: 100%;
+      padding: 40px 30px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    h1 { color: #1a73e8; margin-bottom: 15px; font-size: 28px; }
+    p { color: #666; margin-bottom: 30px; font-size: 15px; }
+    .g_id_signin { margin: 20px auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1> Smart Lab Authentication</h1>
+    <p>Silakan login menggunakan akun Google Anda untuk mengakses layanan Smart Lab</p>
+    
+    <div id="g_id_onload"
+         data-client_id="MASUKKAN_CLIENT_ID_ANDA"
+         data-callback="handleLogin"
+         data-ux_mode="popup">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-text="signin_with">
+    </div>
+  </div>
+
+  <script>
+    function handleLogin(response) {
+      localStorage.setItem('g_token', response.credential);
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      localStorage.setItem('user_email', payload.email);
+      localStorage.setItem('user_name', payload.name);
+      window.location.href = 'chatbot.html';
+    }
+    
+    window.onload = function() {
+      if (localStorage.getItem('g_token')) {
+        window.location.href = 'chatbot.html';
+      }
+    };
+  </script>
+</body>
+</html>
