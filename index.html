@@ -25,13 +25,36 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
       text-align: center;
     }
-    h1 { color: #1a73e8; margin-bottom: 15px; font-size: 28px; }
-    .subtitle { color: #666; margin-bottom: 30px; font-size: 15px; line-height: 1.6; }
-    .g_id_signin { margin: 20px auto; }
+    h1 { 
+      color: #1a73e8; 
+      margin-bottom: 15px; 
+      font-size: 28px;
+      text-align: center;
+    }
+    .subtitle { 
+      color: #666; 
+      margin-bottom: 30px; 
+      font-size: 15px; 
+      line-height: 1.6;
+      text-align: center;
+    }
+    .login-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .g_id_signin { 
+      margin: 20px auto;
+      display: flex;
+      justify-content: center;
+    }
     .divider {
       margin: 30px 0;
       border-top: 2px solid #eee;
       position: relative;
+      width: 100%;
     }
     .divider-text {
       position: absolute;
@@ -44,9 +67,9 @@
       font-size: 14px;
     }
     .btn-chat {
-      display: block;
+      display: inline-block;
       width: 100%;
-      padding: 15px;
+      padding: 15px 20px;
       background: linear-gradient(135deg, #28a745 0%, #218838 100%);
       color: white;
       text-decoration: none;
@@ -55,30 +78,42 @@
       font-size: 16px;
       margin-top: 20px;
       transition: all 0.3s ease;
+      text-align: center;
+      cursor: pointer;
+      border: none;
     }
     .btn-chat:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(40,167,69,0.4);
     }
+    .icon {
+      font-size: 64px;
+      margin-bottom: 15px;
+      display: block;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🔐 Smart Lab Staff Login</h1>
+    <div class="icon">🔐</div>
+    <h1>Smart Lab Staff Login</h1>
     <p class="subtitle">
       Login untuk staff dan admin Departemen Teknik Material & Metalurgi ITS<br><br>
       <strong>Customer?</strong> Langsung klik tombol chat di bawah
     </p>
     
-    <div id="g_id_onload"
-         data-client_id="96706539653-e1h205ej3ne8uhmehl6nfe4bdhgkimm2.apps.googleusercontent.com"
-         data-callback="handleLogin"
-         data-ux_mode="popup">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-text="signin_with">
+    <div class="login-container">
+      <div id="g_id_onload"
+           data-client_id="96706539653-e1h205ej3ne8uhmehl6nfe4bdhgkimm2.apps.googleusercontent.com"
+           data-callback="handleLogin"
+           data-ux_mode="popup">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-text="signin_with">
+      </div>
     </div>
     
     <div class="divider">
