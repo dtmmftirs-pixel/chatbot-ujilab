@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Lab - Dashboard Staff</title>
+  <title>Smart Lab - Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -11,7 +11,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       height: 100vh; /* Fixed height - no scroll */
-      overflow: hidden; /* Hilangkan scroll */
+      overflow: hidden; /* Hilangkan scroll pada body */
       padding: 15px;
     }
     
@@ -26,6 +26,7 @@
       flex-direction: column;
     }
     
+    /* === HEADER === */
     .header {
       background: linear-gradient(135deg, #1a73e8 0%, #0d5bb5 100%);
       color: white;
@@ -34,6 +35,7 @@
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0; /* Header tidak shrink */
+      transition: background 0.3s ease;
     }
     
     .header h1 { 
@@ -57,6 +59,16 @@
       font-size: 12px; 
       opacity: 0.9; 
     }
+
+    .role-badge {
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.25);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
     
     .logout-btn {
       background: rgba(255, 255, 255, 0.2);
@@ -68,6 +80,7 @@
       font-size: 12px;
       font-weight: 600;
       transition: all 0.3s ease;
+      margin-top: 4px;
     }
     
     .logout-btn:hover { 
@@ -75,10 +88,11 @@
       border-color: #dc3545;
     }
     
+    /* === CONTENT === */
     .content { 
       padding: 20px 25px;
       flex: 1; /* Ambil sisa space */
-      overflow-y: auto; /* Scroll hanya jika konten terlalu banyak */
+      overflow-y: auto; /* Scroll HANYA di area konten jika diperlukan */
       display: flex;
       flex-direction: column;
     }
@@ -91,7 +105,7 @@
     
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* Selalu 2 kolom */
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsif dan rapi */
       gap: 15px;
       margin-top: 15px;
     }
@@ -126,65 +140,119 @@
       opacity: 0.85;
       line-height: 1.4;
     }
+
+    /* === TEMA KHUSUS MANAJEMEN (Warna Oranye/Emas) === */
+    body.theme-manajemen .header {
+      background: linear-gradient(135deg, #e65100 0%, #bf360c 100%);
+    }
+    body.theme-manajemen .menu-card {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+    }
+    body.theme-manajemen .menu-card:hover {
+      box-shadow: 0 6px 15px rgba(230,81,0,0.2);
+      border-color: #e65100;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>👨‍💼 Smart Lab Dashboard</h1>
+      <h1 id="dashboardTitle">👨‍💼 Smart Lab Dashboard</h1>
       <div class="user-info">
         <div id="userName">Loading...</div>
         <div class="user-email" id="userEmail"></div>
+        <div class="role-badge" id="roleBadge">ROLE</div>
         <button class="logout-btn" onclick="logout()">🚪 Logout</button>
       </div>
     </div>
     
     <div class="content">
-      <h2>Menu Staff</h2>
+      <h2 id="menuTitle">Menu Akses</h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
-      <div class="menu-grid">
-        <!--
-        <a href="chatbot.html" class="menu-card">
-          <h3>💬 Chatbot Asisten</h3>
-          <p>Akses chatbot untuk customer</p>
-        </a>
-        -->
-        <a href="#" class="menu-card">
-          <h3>📊 Dashboard Pengujian</h3>
-          <p>Lihat status pengujian (Coming Soon)</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📝 Daftar Pengujian</h3>
-          <p>Kelola pengajuan pengujian (Coming Soon)</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📖 Katalog Lab</h3>
-          <p>Lihat katalog lengkap (Coming Soon)</p>
-        </a>
-      </div>
+      <!-- Menu akan di-render secara dinamis oleh JavaScript -->
+      <div class="menu-grid" id="menuGrid"></div>
     </div>
   </div>
 
   <script>
-    // Cek login
-    if (!localStorage.getItem('g_token')) {
+    // 1. KEAMANAN: Cek apakah user sudah login DAN memiliki role
+    const token = localStorage.getItem('g_token');
+    const role = localStorage.getItem('user_role');
+    
+    if (!token || !role) {
+      // Jika tidak ada, tendang kembali ke halaman login
       window.location.href = 'index.html';
     }
     
-    // Tampilkan info user
+    // 2. TAMPILKAN INFO USER
     const email = localStorage.getItem('user_email');
     const name = localStorage.getItem('user_name');
     document.getElementById('userName').textContent = name || 'User';
     document.getElementById('userEmail').textContent = email || '';
+    document.getElementById('roleBadge').textContent = role === 'manajemen' ? 'MANAJEMEN' : 'STAFF';
     
+    // 3. RENDER MENU BERDASARKAN ROLE
+    const menuGrid = document.getElementById('menuGrid');
+    const dashboardTitle = document.getElementById('dashboardTitle');
+    const menuTitle = document.getElementById('menuTitle');
+    
+    // Definisi Menu untuk Staff
+    const staffMenus = [
+      { icon: '📊', title: 'Status Pengujian', desc: 'Lihat status sampel yang sedang diuji', link: '#' },
+      { icon: '📤', title: 'Upload Hasil', desc: 'Upload hasil pengujian ke sistem', link: '#' },
+      { icon: '🔍', title: 'Monitoring Pengujian', desc: 'Pantau progres pengujian harian', link: '#' },
+      { icon: '🔧', title: 'Monitoring Alat', desc: 'Cek kondisi dan jadwal kalibrasi alat', link: '#' }
+    ];
+    
+    // Definisi Menu untuk Manajemen
+    const manajemenMenus = [
+      { icon: '🔍', title: 'Monitoring Pengujian', desc: 'Pantau progres pengujian secara keseluruhan', link: '#' },
+      { icon: '🔧', title: 'Monitoring Alat', desc: 'Laporan kondisi dan utilisasi alat', link: '#' },
+      { icon: '💰', title: 'Rekapitulasi Keuangan', desc: 'Laporan pendapatan dan pengeluaran lab', link: '#' }
+    ];
+    
+    let currentMenus = [];
+    
+    if (role === 'staff') {
+      dashboardTitle.textContent = '👨‍🔧 Dashboard Staff';
+      menuTitle.textContent = 'Menu Staff';
+      currentMenus = staffMenus;
+    } else if (role === 'manajemen') {
+      dashboardTitle.textContent = '👔 Dashboard Manajemen';
+      menuTitle.textContent = 'Menu Manajemen';
+      currentMenus = manajemenMenus;
+      
+      // Aktifkan tema warna oranye untuk manajemen
+      document.body.classList.add('theme-manajemen');
+    } else {
+      // Fallback keamanan jika role tidak dikenali
+      window.location.href = 'index.html';
+    }
+    
+    // Generate HTML untuk setiap menu
+    currentMenus.forEach(menu => {
+      const card = document.createElement('a');
+      card.href = menu.link;
+      card.className = 'menu-card';
+      card.innerHTML = `
+        <h3>${menu.icon} ${menu.title}</h3>
+        <p>${menu.desc}</p>
+      `;
+      menuGrid.appendChild(card);
+    });
+    
+    // 4. FUNGSI LOGOUT
     function logout() {
       if (confirm('Apakah Anda yakin ingin logout?')) {
+        // Hapus SEMUA data sesi
         localStorage.removeItem('g_token');
         localStorage.removeItem('user_email');
         localStorage.removeItem('user_name');
+        localStorage.removeItem('user_role');
+        
+        // Kembali ke halaman login
         window.location.href = 'index.html';
       }
     }
