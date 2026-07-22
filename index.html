@@ -15,46 +15,38 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      overflow: hidden; /* Hilangkan scroll */
     }
     .container {
       max-width: 450px;
       width: 100%;
-      padding: 40px 30px;
+      padding: 35px 30px;
       background: white;
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
       text-align: center;
+      max-height: 90vh; /* Maksimal 90% viewport height */
+      overflow-y: auto; /* Scroll hanya jika sangat diperlukan */
     }
     h1 { 
       color: #1a73e8; 
-      margin-bottom: 15px; 
-      font-size: 28px;
-      text-align: center;
+      margin-bottom: 12px; 
+      font-size: 26px; 
+      line-height: 1.2;
     }
     .subtitle { 
       color: #666; 
-      margin-bottom: 30px; 
-      font-size: 15px; 
-      line-height: 1.6;
-      text-align: center;
-    }
-    .login-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin: 20px 0;
+      margin-bottom: 25px; 
+      font-size: 14px; 
+      line-height: 1.6; 
     }
     .g_id_signin { 
-      margin: 20px auto;
-      display: flex;
-      justify-content: center;
+      margin: 20px auto; 
     }
     .divider {
-      margin: 30px 0;
+      margin: 25px 0;
       border-top: 2px solid #eee;
       position: relative;
-      width: 100%;
     }
     .divider-text {
       position: absolute;
@@ -67,53 +59,59 @@
       font-size: 14px;
     }
     .btn-chat {
-      display: inline-block;
+      display: block;
       width: 100%;
-      padding: 15px 20px;
+      padding: 14px;
       background: linear-gradient(135deg, #28a745 0%, #218838 100%);
       color: white;
       text-decoration: none;
       border-radius: 8px;
       font-weight: 600;
-      font-size: 16px;
-      margin-top: 20px;
+      font-size: 15px;
       transition: all 0.3s ease;
-      text-align: center;
-      cursor: pointer;
       border: none;
+      cursor: pointer;
     }
     .btn-chat:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(40,167,69,0.4);
     }
-    .icon {
-      font-size: 64px;
-      margin-bottom: 15px;
-      display: block;
-      text-align: center;
+    /* Responsive untuk layar kecil */
+    @media (max-height: 700px) {
+      .container {
+        padding: 25px 20px;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+      .g_id_signin {
+        margin: 15px auto;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="icon">🔐</div>
-    <h1>Smart Lab Staff Login</h1>
+    <h1>🔐 Smart Lab Staff Login</h1>
     <p class="subtitle">
       Login untuk staff dan admin Departemen Teknik Material & Metalurgi ITS<br><br>
       <strong>Customer?</strong> Langsung klik tombol chat di bawah
     </p>
     
-    <div class="login-container">
-      <div id="g_id_onload"
-           data-client_id="96706539653-e1h205ej3ne8uhmehl6nfe4bdhgkimm2.apps.googleusercontent.com"
-           data-callback="handleLogin"
-           data-ux_mode="popup">
-      </div>
-      <div class="g_id_signin"
-           data-type="standard"
-           data-size="large"
-           data-text="signin_with">
-      </div>
+    <div id="g_id_onload"
+         data-client_id="96706539653-e1h205ej3ne8uhmehl6nfe4bdhgkimm2.apps.googleusercontent.com"
+         data-callback="handleLogin"
+         data-ux_mode="popup">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-text="signin_with">
     </div>
     
     <div class="divider">
