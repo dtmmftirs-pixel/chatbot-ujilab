@@ -3,94 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Lab - Login Staff & Manajemen</title>
+  <title>Smart Lab - Login Staff</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .container { max-width: 450px; width: 100%; padding: 40px 35px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center; }
-    h1 { color: #1a73e8; margin-bottom: 15px; font-size: 26px; font-weight: 700; }
-    .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; line-height: 1.6; }
-    .g_id_signin { margin: 25px auto; display: flex; justify-content: center; }
-    .divider { margin: 30px 0; border-top: 2px solid #eee; position: relative; text-align: center; }
-    .divider-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 0 20px; color: #999; font-size: 14px; }
-    .btn-chat { display: inline-block; width: 100%; padding: 15px 25px; background: linear-gradient(135deg, #28a745 0%, #218838 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; transition: all 0.3s ease; border: none; cursor: pointer; text-align: center; }
-    .btn-chat:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(40,167,69,0.4); }
-    .loading-state { color: #1a73e8; font-weight: 600; padding: 20px; font-size: 16px; }
-    .loading-state span { display: block; font-size: 13px; font-weight: 400; color: #666; margin-top: 8px; }
-    .error-state { color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 8px; margin-top: 20px; font-size: 14px; line-height: 1.5; border: 1px solid #f5c6cb; }
-    .btn-retry { margin-top: 15px; padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
-    .btn-retry:hover { background: #0d5bb5; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .container {
+      max-width: 450px;
+      width: 100%;
+      padding: 40px 35px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center; /* Center semua teks */
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    h1 { 
+      color: #1a73e8; 
+      margin-bottom: 15px; 
+      font-size: 28px; 
+      font-weight: 700;
+      text-align: center;
+    }
+    
+    .subtitle { 
+      color: #666; 
+      margin-bottom: 30px; 
+      font-size: 15px; 
+      line-height: 1.6;
+      text-align: center;
+    }
+    
+    /* Center Google Sign In Button */
+    .g_id_signin { 
+      margin: 25px auto;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .divider {
+      margin: 30px 0;
+      border-top: 2px solid #eee;
+      position: relative;
+      text-align: center;
+    }
+    
+    .divider-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 0 20px;
+      color: #999;
+      font-size: 14px;
+    }
+    
+    /* Center tombol chat */
+    .btn-chat {
+      display: inline-block;
+      width: 100%;
+      padding: 15px 25px;
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+    }
+    
+    .btn-chat:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(40,167,69,0.4);
+    }
+    
+    /* Responsive untuk layar kecil */
+    @media (max-height: 700px) {
+      .container {
+        padding: 30px 25px;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+      .subtitle {
+        font-size: 14px;
+        margin-bottom: 25px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container" id="loginContainer">
-    <h1>🔐 Smart Lab Login</h1>
-    <p class="subtitle">Khusus untuk <strong>Staff</strong> dan <strong>Manajemen</strong><br>Departemen Teknik Material & Metalurgi ITS</p>
+  <div class="container">
+    <h1>🔐 Smart Lab Staff Login</h1>
+    <p class="subtitle">
+      Login untuk staff dan admin Departemen Teknik Material & Metalurgi ITS<br><br>
+    </p>
     
     <div id="g_id_onload"
          data-client_id="96706539653-e1h205ej3ne8uhmehl6nfe4bdhgkimm2.apps.googleusercontent.com"
          data-callback="handleLogin"
          data-ux_mode="popup">
     </div>
-    <div class="g_id_signin" data-type="standard" data-size="large" data-text="signin_with"></div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-text="signin_with">
+    </div>
     
-    <div class="divider"><span class="divider-text">atau</span></div>
-    <a href="widget.html" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
+    <div class="divider">
+      <span class="divider-text">atau</span>
+    </div>
+    
+    <a href="chatbot.html" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
   </div>
 
   <script src="config.js"></script>
   <script>
-    async function handleLogin(response) {
+    function handleLogin(response) {
+      localStorage.setItem('g_token', response.credential);
       const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      const email = payload.email;
-      
-      document.getElementById('loginContainer').innerHTML = `
-        <div class="loading-state">⏳ Memverifikasi akses Anda...<br><span>${email}</span></div>
-      `;
-      
-      try {
-        const fetchResponse = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'verify', email: email })
-        });
-
-        const responseText = await fetchResponse.text();
-        let result;
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseError) {
-          throw new Error("Server tidak merespons dengan JSON. Periksa URL API di config.js.");
-        }
-
-        if (result.success && (result.role === 'staff' || result.role === 'manajemen')) {
-          localStorage.setItem('g_token', response.credential);
-          localStorage.setItem('user_email', result.email);
-          localStorage.setItem('user_name', result.name);
-          localStorage.setItem('user_role', result.role);
-          window.location.href = 'widget.html'; // Diarahkan ke widget
-        } else {
-          showError(result.error || 'Email Anda tidak terdaftar dalam sistem.');
-        }
-      } catch (err) {
-        showError('Gagal terhubung ke server: ' + err.message);
-      }
-    }
-
-    function showError(message) {
-      document.getElementById('loginContainer').innerHTML = `
-        <h1>⛔ Akses Ditolak</h1>
-        <div class="error-state">${message}</div>
-        <button class="btn-retry" onclick="window.location.reload()">🔄 Coba Lagi</button>
-      `;
+      localStorage.setItem('user_email', payload.email);
+      localStorage.setItem('user_name', payload.name);
+      window.location.href = 'dashboard.html';
     }
     
     window.onload = function() {
-      const token = localStorage.getItem('g_token');
-      const role = localStorage.getItem('user_role');
-      if (token && role) {
-        window.location.href = 'widget.html';
+      if (localStorage.getItem('g_token')) {
+        window.location.href = 'dashboard.html';
       }
     };
   </script>
