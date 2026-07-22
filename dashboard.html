@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Lab - Dashboard Staff</title>
+  <title>Smart Lab - Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -135,12 +135,13 @@
       <div class="user-info">
         <div id="userName">Loading...</div>
         <div class="user-email" id="userEmail"></div>
-        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        <!-- Pastikan onclick memanggil fungsi logout() -->
+        <button class="logout-btn" onclick="prosesLogout()">🚪 Logout</button>
       </div>
     </div>
     
     <div class="content">
-      <h2>Menu Staff</h2>
+      <h2>Menu Utama</h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
       <div class="menu-grid">
@@ -155,7 +156,7 @@
         </a>
         
         <a href="#" class="menu-card">
-          <h3> Daftar Pengujian</h3>
+          <h3>📝 Daftar Pengujian</h3>
           <p>Kelola pengajuan pengujian (Coming Soon)</p>
         </a>
         
@@ -168,24 +169,37 @@
   </div>
 
   <script>
-    // Cek login - jika tidak ada token, redirect ke login
-    if (!localStorage.getItem('g_token')) {
-      window.location.href = 'index.html';
+    // 1. CEK SESI SEDERHANA (Tanpa Role)
+    // Jika tidak ada tanda 'isLoggedIn', langsung lempar ke halaman login
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      window.location.replace('index.html');
     }
     
-    // Tampilkan info user
+    // 2. TAMPILKAN INFO USER (Hanya nama & email, tanpa role)
+    const name = localStorage.getItem('user_name') || 'Pengguna';
     const email = localStorage.getItem('user_email') || '';
-    const name = localStorage.getItem('user_name') || 'User';
+    
     document.getElementById('userName').textContent = name;
     document.getElementById('userEmail').textContent = email;
     
-    // Fungsi logout - HANYA hapus token dan data user
-    function logout() {
-      if (confirm('Apakah Anda yakin ingin logout?')) {
-        localStorage.removeItem('g_token');
-        localStorage.removeItem('user_email');
-        localStorage.removeItem('user_name');
-        window.location.href = 'index.html';
+    // 3. FUNGSI LOGOUT YANG DIPASTIKAN BERFUNGSI
+    function prosesLogout() {
+      console.log("Tombol logout diklik"); // Untuk debugging di Console browser
+      
+      const yakin = confirm('Apakah Anda yakin ingin keluar dari sistem?');
+      
+      if (yakin) {
+        console.log("Menghapus semua data sesi...");
+        
+        // Hapus SEMUA data di localStorage untuk halaman ini
+        // Ini lebih aman dan pasti daripada removeItem satu per satu
+        localStorage.clear(); 
+        
+        console.log("Redirect ke halaman login...");
+        
+        // Gunakan .replace() bukan .href agar halaman dashboard tidak tersimpan 
+        // di history browser (mencegah user klik tombol "Back" dan masuk lagi)
+        window.location.replace('index.html');
       }
     }
   </script>
