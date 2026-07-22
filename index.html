@@ -92,7 +92,6 @@
       box-shadow: 0 4px 12px rgba(40,167,69,0.4);
     }
 
-    /* === BARU: Styling untuk Loading dan Error === */
     .loading-state {
       color: #1a73e8;
       font-weight: 600;
@@ -132,7 +131,6 @@
       background: #0d5bb5;
     }
     
-    /* Responsive untuk layar kecil */
     @media (max-height: 700px) {
       .container { padding: 30px 25px; }
       h1 { font-size: 22px; margin-bottom: 12px; }
@@ -152,6 +150,7 @@
       Departemen Teknik Material & Metalurgi ITS
     </p>
     
+    <!-- Ganti data-client_id dengan Client ID Anda yang sebenarnya -->
     <div id="g_id_onload"
          data-client_id="96706539653-e1h205ej3ne8uhmehl6nfe4bdhgkimm2.apps.googleusercontent.com"
          data-callback="handleLogin"
@@ -164,17 +163,17 @@
     </div>
     
     <div class="divider">
-      <span class="divider-text"></span>
+      <span class="divider-text">atau</span>
     </div>
     
-    <!-- Link diarahkan ke chatbot.html agar customer bisa langsung chat -->
     <a href="chatbot.html" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
   </div>
 
+  <!-- Pastikan config.js berisi: const API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"; -->
   <script src="config.js"></script>
   <script>
     // Fungsi utama saat user berhasil login via Google
-    function handleLogin(response) {
+    async function handleLogin(response) {
       // 1. Decode token untuk mendapatkan email
       const payload = JSON.parse(atob(response.credential.split('.')[1]));
       const email = payload.email;
@@ -187,28 +186,44 @@
         </div>
       `;
       
-      // 3. Panggil fungsi backend untuk cek role di Google Sheet
-      google.script.run
-        .withSuccessHandler(function(result) {
-          if (result.role === 'staff' || result.role === 'manajemen') {
-            // SUKSES: Simpan data ke localStorage
-            localStorage.setItem('g_token', response.credential);
-            localStorage.setItem('user_email', result.email);
-            localStorage.setItem('user_name', result.name);
-            localStorage.setItem('user_role', result.role); // PENTING: Simpan role
-            
-            // Redirect ke dashboard
-            window.location.href = 'dashboard.html';
-          } else {
-            // GAGAL: Tampilkan pesan error dari backend
-            showError(result.error || 'Email Anda tidak terdaftar dalam sistem.');
-          }
-        })
-        .withFailureHandler(function(err) {
-          // ERROR JARINGAN/SCRIPT
-          showError('Gagal terhubung ke server: ' + err);
-        })
-        .verifyUserAndRole(email); // Memanggil fungsi yang kita buat di Code.gs
+      try {
+        // 3. PANGGIL BACKEND MENGGUNAKAN FETCH (Bukan google.script.run)
+        // Pastikan variabel API_URL sudah didefinisikan di config.js
+        const apiEndpoint = typeof API_URL !== 'undefined' ? API_URL : 'GANTI_DENGAN_URL_WEB_APP_ANDA';
+        
+        const fetchResponse = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'verify',
+            email: email
+          })
+        });
+
+        const result = await fetchResponse.json();
+
+        // 4. Proses hasil dari backend
+        if (result.success && (result.role === 'staff' || result.role === 'manajemen')) {
+          // SUKSES: Simpan data ke localStorage
+          localStorage.setItem('g_token', response.credential);
+          localStorage.setItem('user_email', result.email);
+          localStorage.setItem('user_name', result.name);
+          localStorage.setItem('user_role', result.role);
+          
+          // Redirect ke dashboard
+          window.location.href = 'dashboard.html';
+        } else {
+          // GAGAL: Tampilkan pesan error dari backend
+          showError(result.error || 'Email Anda tidak terdaftar dalam sistem.');
+        }
+
+      } catch (err) {
+        // ERROR JARINGAN/SCRIPT
+        console.error("Verifikasi Error:", err);
+        showError('Gagal terhubung ke server. Periksa koneksi internet atau URL API. (' + err.message + ')');
+      }
     }
 
     // Fungsi helper untuk menampilkan error dengan rapi
@@ -216,7 +231,7 @@
       document.getElementById('loginContainer').innerHTML = `
         <h1>⛔ Akses Ditolak</h1>
         <div class="error-state">${message}</div>
-        <button class="btn-retry" onclick="window.location.reload()">🔄 Coba Lagi</div>
+        <button class="btn-retry" onclick="window.location.reload()">🔄 Coba Lagi</button>
         <div style="margin-top: 20px; font-size: 13px; color: #666;">
           Hubungi admin lab jika Anda merasa ini adalah kesalahan.
         </div>
