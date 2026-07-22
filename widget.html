@@ -14,13 +14,13 @@
       overflow: hidden;
     }
     
-    /* Tombol Chat Floating */
+    /* Tombol Chat Floating - DIKECILKAN */
     .chat-button {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 60px;
-      height: 60px;
+      width: 55px; /* Sebelumnya 60px */
+      height: 55px; /* Sebelumnya 60px */
       border-radius: 50%;
       background: linear-gradient(135deg, #1a73e8 0%, #0d5bb5 100%);
       color: white;
@@ -30,7 +30,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 26px; /* Sebelumnya 28px */
       transition: all 0.3s ease;
       z-index: 1000;
     }
@@ -44,15 +44,15 @@
       display: none;
     }
     
-    /* Container Chat Widget */
+    /* Container Chat Widget - DIKECILKAN */
     .chat-widget {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 380px;
-      height: calc(100vh - 100px);
-      max-height: 650px;
-      min-height: 400px;
+      width: 340px; /* Sebelumnya 380px */
+      height: calc(100vh - 120px); /* Lebih kecil */
+      max-height: 580px; /* Sebelumnya 650px */
+      min-height: 380px; /* Sebelumnya 400px */
       background: white;
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
@@ -70,23 +70,23 @@
       pointer-events: none;
     }
     
-    /* Header Widget */
+    /* Header Widget - DIKECILKAN */
     .widget-header {
       background: linear-gradient(135deg, #1a73e8 0%, #0d5bb5 100%);
       color: white;
-      padding: 15px 20px;
+      padding: 12px 16px; /* Sebelumnya 15px 20px */
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     
     .widget-header h3 {
-      font-size: 16px;
+      font-size: 15px; /* Sebelumnya 16px */
       font-weight: 600;
     }
     
     .widget-header p {
-      font-size: 12px;
+      font-size: 11px; /* Sebelumnya 12px */
       opacity: 0.9;
       margin-top: 2px;
     }
@@ -95,11 +95,11 @@
       background: rgba(255,255,255,0.2);
       border: none;
       color: white;
-      width: 32px;
-      height: 32px;
+      width: 28px; /* Sebelumnya 32px */
+      height: 28px; /* Sebelumnya 32px */
       border-radius: 50%;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 16px; /* Sebelumnya 18px */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -110,24 +110,24 @@
       background: rgba(255,255,255,0.3);
     }
     
-    /* Chat Box */
+    /* Chat Box - DIKECILKAN */
     .chat-box {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
-      font-size: 12px;
+      padding: 16px; /* Sebelumnya 20px */
       background: #f8f9fa;
-      min-height: 200px;
+      min-height: 180px; /* Sebelumnya 200px */
     }
     
     .message {
-      margin-bottom: 15px;
-      padding: 12px 16px;
+      margin-bottom: 12px; /* Sebelumnya 15px */
+      padding: 10px 14px; /* Sebelumnya 12px 16px */
       border-radius: 12px;
       max-width: 85%;
       word-wrap: break-word;
       animation: fadeIn 0.3s ease;
       line-height: 1.5;
+      font-size: 13px; /* Sebelumnya 14px */
     }
     
     @keyframes fadeIn {
@@ -146,18 +146,15 @@
       border: 1px solid #ddd;
     }
     
-    /* Styling untuk teks bold */
     .message strong {
       font-weight: 700;
       color: inherit;
     }
     
-    /* Styling untuk teks italic */
     .message em {
       font-style: italic;
     }
     
-    /* Styling untuk code */
     .message code {
       background: rgba(0,0,0,0.1);
       padding: 2px 6px;
@@ -174,7 +171,6 @@
       background: rgba(255,255,255,0.2);
     }
 
-    /* === BARU: Styling untuk pesan "Sedang berpikir" === */
     .thinking-message {
       background: white;
       border: 1px solid #ddd;
@@ -188,8 +184,8 @@
     }
 
     .thinking-dots span {
-      width: 8px;
-      height: 8px;
+      width: 7px; /* Sebelumnya 8px */
+      height: 7px; /* Sebelumnya 8px */
       background: #1a73e8;
       border-radius: 50%;
       display: inline-block;
@@ -204,21 +200,21 @@
       40% { transform: scale(1); }
     }
     
-    /* Input Area */
+    /* Input Area - DIKECILKAN */
     .input-area {
-      padding: 15px;
+      padding: 12px; /* Sebelumnya 15px */
       border-top: 1px solid #ddd;
       display: flex;
-      gap: 10px;
+      gap: 8px; /* Sebelumnya 10px */
       background: white;
     }
     
     .input-area input {
       flex: 1;
-      padding: 10px 14px;
+      padding: 9px 12px; /* Sebelumnya 10px 14px */
       border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13px; /* Sebelumnya 14px */
       outline: none;
     }
     
@@ -227,14 +223,14 @@
     }
     
     .input-area button {
-      padding: 10px 18px;
+      padding: 9px 16px; /* Sebelumnya 10px 18px */
       background: #1a73e8;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13px; /* Sebelumnya 14px */
       transition: all 0.3s ease;
     }
     
@@ -247,13 +243,14 @@
       cursor: not-allowed;
     }
     
-    /* Welcome Message */
+    /* Welcome Message - DIKECILKAN */
     .welcome-msg {
       background: white;
       border: 1px solid #ddd;
-      padding: 15px;
+      padding: 12px; /* Sebelumnya 15px */
       border-radius: 12px;
-      margin-bottom: 15px;
+      margin-bottom: 12px; /* Sebelumnya 15px */
+      font-size: 13px; /* Sebelumnya 14px */
     }
     
     .welcome-msg strong {
@@ -275,7 +272,7 @@
 <body>
   <!-- Tombol Chat Floating -->
   <button class="chat-button" id="chatButton" onclick="toggleChat()">
-    💬
+    
   </button>
   
   <!-- Widget Chat -->
@@ -293,7 +290,7 @@
         <strong>Halo! 👋</strong><br><br>
         Saya asisten virtual Smart Lab.<br>
         Departemen Teknik Material dan Metalurgi<br>
-        Silahkan bertanya tentang fasilitas pengujian yang kami miliki.
+        Silakan bertanya tentang fasilitas pengujian yang kami miliki.
       </div>
     </div>
     
@@ -308,7 +305,6 @@
     let chatHistory = [];
     let isChatOpen = false;
     
-    // Toggle minimize/maximize
     function toggleChat() {
       const widget = document.getElementById('chatWidget');
       const button = document.getElementById('chatButton');
@@ -330,7 +326,6 @@
       }
     }
 
-    // Fungsi untuk convert markdown ke HTML
     function markdownToHtml(text) {
       if (!text) return '';
       text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -340,7 +335,6 @@
       return text;
     }
     
-    // === BARU: Fungsi untuk menampilkan pesan "Sedang berpikir..." ===
     function tampilkanPesanSedangBerpikir() {
       const chatBox = document.getElementById('chatBox');
       const thinkingDiv = document.createElement('div');
@@ -364,7 +358,6 @@
       return thinkingDiv.id;
     }
 
-    // === BARU: Fungsi untuk menghapus pesan "Sedang berpikir..." ===
     function hapusPesanSedangBerpikir(id) {
       const thinkingElement = document.getElementById(id);
       if (thinkingElement) {
@@ -389,20 +382,24 @@
       
       chatHistory.push({ role: 'user', text: pesan });
       
-      // Tampilkan indikator berpikir
       const thinkingId = tampilkanPesanSedangBerpikir();
       
-      const url = new URL(APPS_SCRIPT_URL);
-      url.searchParams.set('action', 'chat');
-      url.searchParams.set('message', pesan);
-      url.searchParams.set('history', JSON.stringify(chatHistory.slice(-6)));
+      const userEmail = localStorage.getItem('user_email') || 'guest@smartlab.its.ac.id';
       
-      fetch(url.toString(), {
-        method: 'GET'
+      fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          action: 'chat',
+          email: userEmail,
+          message: pesan,
+          history: chatHistory.slice(-6)
+        })
       })
       .then(response => response.text())
       .then(text => {
-        // Hapus indikator berpikir segera setelah respons diterima
         hapusPesanSedangBerpikir(thinkingId);
         
         try {
@@ -420,8 +417,8 @@
       })
       .catch(error => {
         console.error('Fetch error:', error);
-        hapusPesanSedangBerpikir(thinkingId); // Pastikan dihapus juga saat error
-        tampilkanPesan('⚠️ Maaf, terjadi kesalahan koneksi.', 'bot');
+        hapusPesanSedangBerpikir(thinkingId);
+        tampilkanPesan('️ Maaf, terjadi kesalahan koneksi.', 'bot');
       })
       .finally(() => {
         sendBtn.disabled = false;
@@ -438,7 +435,6 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
     
-    // Auto-open chat setelah 2 detik
     setTimeout(() => {
       if (!isChatOpen) {
         toggleChat();
