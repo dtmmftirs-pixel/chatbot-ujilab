@@ -29,6 +29,8 @@
       text-align: center;
       max-height: 90vh;
       overflow-y: auto;
+      position: relative;
+      z-index: 1;
     }
     
     h1 { 
@@ -92,6 +94,36 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(40,167,69,0.4);
     }
+
+    /* --- TAMBAHAN: Loading Overlay --- */
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: none; /* Tersembunyi secara default */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .spinner {
+      width: 45px;
+      height: 45px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #1a73e8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
     
     @media (max-height: 700px) {
       .container { padding: 30px 25px; }
@@ -106,6 +138,14 @@
   </style>
 </head>
 <body>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="color: #1a73e8; font-weight: 600; font-size: 16px;">Memverifikasi hak akses...</p>
+    <p style="color: #666; font-size: 13px; margin-top: 5px;">Mohon tunggu sebentar</p>
+  </div>
+
   <div class="container">
     <h1>Smart Lab - Login</h1>
     <p class="subtitle">
@@ -127,15 +167,21 @@
     </div>
     
     <div class="divider">
-      <span class="divider-text"></span>
+      <span class="divider-text">ATAU</span>
     </div>
     
-    <!-- Pastikan href mengarah ke file chatbot/widget yang benar -->
-    <a href="#" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
+    <!-- Ganti href="#" menjadi href="widget.html" jika file chatbot sudah ada -->
+    <a href="widget.html" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
   </div>
 
+  <!-- Opsional: Jika config.js sudah berisi SCRIPT_URL, Anda bisa menghapus baris const di bawah -->
   <script src="config.js"></script>
+  
   <script>
+    // ⚠️ PENTING: Ganti dengan URL Deployment Web App Google Apps Script Anda
+    // Jika URL sudah didefinisikan di config.js, hapus atau comment baris ini.
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx...GANTI_DENGAN_URL_ANDA.../exec';
+
     // Fungsi untuk decode JWT Google dengan aman (mendukung karakter UTF-8 / Base64URL)
     function parseJwt(token) {
       const base64Url = token.split('.')[1];
@@ -153,25 +199,48 @@
 
     function handleLogin(response) {
       try {
-        // 1. Simpan token mentah (opsional, berguna untuk verifikasi backend nanti)
-        localStorage.setItem('g_token', response.credential);
-        
-        // 2. Decode payload untuk mendapatkan data user secara aman
+        // 1. Decode payload untuk mendapatkan data user secara aman
         const payload = parseJwt(response.credential);
+        const email = payload.email || 'Email tidak tersedia';
+        const name = payload.name || 'Pengguna';
         
-        // 3. Simpan data user ke localStorage (dengan fallback jika data kosong)
-        localStorage.setItem('user_email', payload.email || 'Email tidak tersedia');
-        localStorage.setItem('user_name', payload.name || 'Pengguna');
-        
-        // 4. Set flag login berhasil
+        // 2. Simpan data dasar user ke localStorage
+        localStorage.setItem('g_token', response.credential);
+        localStorage.setItem('user_email', email);
+        localStorage.setItem('user_name', name);
         localStorage.setItem('isLoggedIn', 'true');
         
-        // 5. Redirect ke dashboard
-        window.location.href = 'dashboard.html';
+        // 3. Tampilkan loading overlay
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        // 4. Fetch role dan menu dari Google Apps Script
+        fetch(`${SCRIPT_URL}?action=getUserRole&email=${encodeURIComponent(email)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              // Simpan role dan menu yang didapat dari backend
+              localStorage.setItem('user_role', data.user.role);
+              localStorage.setItem('user_menus', JSON.stringify(data.menus));
+            } else {
+              // Fallback jika user tidak ditemukan di sheet (anggap sebagai 'users' biasa)
+              console.warn("User tidak ditemukan di sheet, menggunakan role default.");
+              localStorage.setItem('user_role', 'users');
+            }
+            
+            // 5. Redirect ke dashboard setelah data tersimpan
+            window.location.href = 'dashboard.html';
+          })
+          .catch(err => {
+            console.error("Gagal menghubungi server untuk verifikasi role:", err);
+            // Fallback aman agar user tidak terjebak di halaman login
+            localStorage.setItem('user_role', 'users');
+            window.location.href = 'dashboard.html';
+          });
         
       } catch (error) {
         console.error("Gagal memproses login:", error);
         alert("Terjadi kesalahan saat memproses login. Silakan coba lagi.");
+        document.getElementById('loadingOverlay').style.display = 'none';
       }
     }
     
