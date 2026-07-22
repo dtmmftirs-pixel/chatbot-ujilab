@@ -1,13 +1,3 @@
-// Cek login
-if (!localStorage.getItem('g_token')) {
-  window.location.href = 'index.html';
-}
-
-// Tampilkan info user
-const email = localStorage.getItem('user_email');
-const name = localStorage.getItem('user_name');
-document.getElementById('userInfo').textContent = name + ' (' + email + ')';
-
 // Riwayat chat
 let chatHistory = [];
 
@@ -24,14 +14,18 @@ function kirimPesan() {
   
   if (!pesan) return;
   
+  // Tampilkan pesan user
   tampilkanPesan(pesan, 'user');
   input.value = '';
   
+  // Disable button saat loading
   sendBtn.disabled = true;
   sendBtn.textContent = 'Mengirim...';
   
+  // Simpan ke history
   chatHistory.push({ role: 'user', text: pesan });
   
+  // Kirim ke Apps Script
   fetch(APPS_SCRIPT_URL, {
     method: 'POST',
     headers: {
@@ -40,8 +34,7 @@ function kirimPesan() {
     body: JSON.stringify({
       action: 'chat',
       message: pesan,
-      history: chatHistory.slice(-6),
-      token: localStorage.getItem('g_token')
+      history: chatHistory.slice(-6) // Kirim 6 pesan terakhir
     })
   })
   .then(response => response.json())
@@ -50,12 +43,12 @@ function kirimPesan() {
       tampilkanPesan(data.reply, 'bot');
       chatHistory.push({ role: 'bot', text: data.reply });
     } else {
-      tampilkanPesan('Error: ' + (data.error || 'Gagal memproses'), 'bot');
+      tampilkanPesan('⚠️ Error: ' + (data.error || 'Gagal memproses'), 'bot');
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    tampilkanPesan('Maaf, terjadi kesalahan koneksi. Silakan coba lagi.', 'bot');
+    tampilkanPesan('⚠️ Maaf, terjadi kesalahan koneksi. Silakan coba lagi.', 'bot');
   })
   .finally(() => {
     sendBtn.disabled = false;
@@ -70,11 +63,4 @@ function tampilkanPesan(teks, pengirim) {
   messageDiv.innerHTML = teks.replace(/\n/g, '<br>');
   chatBox.appendChild(messageDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function logout() {
-  localStorage.removeItem('g_token');
-  localStorage.removeItem('user_email');
-  localStorage.removeItem('user_name');
-  window.location.href = 'index.html';
 }
