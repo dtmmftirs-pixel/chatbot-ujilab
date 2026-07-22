@@ -10,8 +10,8 @@
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      height: 100vh; /* Fixed height - no scroll */
-      overflow: hidden; /* Hilangkan scroll */
+      height: 100vh;
+      overflow: hidden;
       padding: 15px;
     }
     
@@ -33,7 +33,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-shrink: 0; /* Header tidak shrink */
+      flex-shrink: 0;
     }
     
     .header h1 { 
@@ -77,8 +77,8 @@
     
     .content { 
       padding: 20px 25px;
-      flex: 1; /* Ambil sisa space */
-      overflow-y: auto; /* Scroll hanya jika konten terlalu banyak */
+      flex: 1;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
@@ -91,7 +91,7 @@
     
     .menu-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* Selalu 2 kolom */
+      grid-template-columns: repeat(2, 1fr);
       gap: 15px;
       margin-top: 15px;
     }
@@ -140,11 +140,11 @@
     </div>
     
     <div class="content">
-      <h2>Menu Staff</h2>
+      <h2>Menu User</h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
       <div class="menu-grid">
-        <a href="chatbot.html" class="menu-card">
+        <a href="widget.html" class="menu-card">
           <h3>💬 Chatbot Asisten</h3>
           <p>Akses chatbot untuk customer</p>
         </a>
@@ -168,22 +168,30 @@
   </div>
 
   <script>
-    // Cek login
+    // Cek login - jika tidak ada token, redirect ke login
     if (!localStorage.getItem('g_token')) {
       window.location.href = 'index.html';
     }
     
     // Tampilkan info user
-    const email = localStorage.getItem('user_email');
-    const name = localStorage.getItem('user_name');
-    document.getElementById('userName').textContent = name || 'User';
-    document.getElementById('userEmail').textContent = email || '';
+    const email = localStorage.getItem('user_email') || '';
+    const name = localStorage.getItem('user_name') || 'User';
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userEmail').textContent = email;
     
+    // Fungsi logout yang DIPERBAIKI
     function logout() {
       if (confirm('Apakah Anda yakin ingin logout?')) {
+        // Hapus SEMUA data dari localStorage
         localStorage.removeItem('g_token');
         localStorage.removeItem('user_email');
         localStorage.removeItem('user_name');
+        localStorage.removeItem('user_role');
+        
+        // Clear semua storage untuk memastikan
+        // localStorage.clear(); // Alternatif: hapus semua
+        
+        // Redirect ke halaman login
         window.location.href = 'index.html';
       }
     }
