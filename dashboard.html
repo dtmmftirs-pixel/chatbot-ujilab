@@ -140,7 +140,7 @@
     </div>
     
     <div class="content">
-      <h2>Menu User</h2>
+      <h2>Menu Staff</h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
       <div class="menu-grid">
@@ -155,7 +155,7 @@
         </a>
         
         <a href="#" class="menu-card">
-          <h3>📝 Daftar Pengujian</h3>
+          <h3> Daftar Pengujian</h3>
           <p>Kelola pengajuan pengujian (Coming Soon)</p>
         </a>
         
@@ -179,19 +179,12 @@
     document.getElementById('userName').textContent = name;
     document.getElementById('userEmail').textContent = email;
     
-    // Fungsi logout yang DIPERBAIKI
+    // Fungsi logout - HANYA hapus token dan data user
     function logout() {
       if (confirm('Apakah Anda yakin ingin logout?')) {
-        // Hapus SEMUA data dari localStorage
         localStorage.removeItem('g_token');
         localStorage.removeItem('user_email');
         localStorage.removeItem('user_name');
-        localStorage.removeItem('user_role');
-        
-        // Clear semua storage untuk memastikan
-        // localStorage.clear(); // Alternatif: hapus semua
-        
-        // Redirect ke halaman login
         window.location.href = 'index.html';
       }
     }
