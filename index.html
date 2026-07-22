@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Lab - Login Staff</title>
+  <title>Smart Lab - Login Staff & Manajemen</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,7 +26,7 @@
       background: white;
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      text-align: center; /* Center semua teks */
+      text-align: center;
       max-height: 90vh;
       overflow-y: auto;
     }
@@ -34,7 +34,7 @@
     h1 { 
       color: #1a73e8; 
       margin-bottom: 15px; 
-      font-size: 28px; 
+      font-size: 26px; 
       font-weight: 700;
       text-align: center;
     }
@@ -42,12 +42,11 @@
     .subtitle { 
       color: #666; 
       margin-bottom: 30px; 
-      font-size: 15px; 
+      font-size: 14px; 
       line-height: 1.6;
       text-align: center;
     }
     
-    /* Center Google Sign In Button */
     .g_id_signin { 
       margin: 25px auto;
       display: flex;
@@ -72,7 +71,6 @@
       font-size: 14px;
     }
     
-    /* Center tombol chat */
     .btn-chat {
       display: inline-block;
       width: 100%;
@@ -93,37 +91,65 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(40,167,69,0.4);
     }
+
+    /* === BARU: Styling untuk Loading dan Error === */
+    .loading-state {
+      color: #1a73e8;
+      font-weight: 600;
+      padding: 20px;
+      font-size: 16px;
+    }
+    .loading-state span {
+      display: block;
+      font-size: 13px;
+      font-weight: 400;
+      color: #666;
+      margin-top: 8px;
+    }
+    .error-state {
+      color: #dc3545;
+      background: #f8d7da;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+      border: 1px solid #f5c6cb;
+    }
+    .btn-retry {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .btn-retry:hover {
+      background: #0d5bb5;
+    }
     
     /* Responsive untuk layar kecil */
     @media (max-height: 700px) {
-      .container {
-        padding: 30px 25px;
-      }
-      h1 {
-        font-size: 24px;
-        margin-bottom: 12px;
-      }
-      .subtitle {
-        font-size: 14px;
-        margin-bottom: 25px;
-      }
+      .container { padding: 30px 25px; }
+      h1 { font-size: 22px; margin-bottom: 12px; }
+      .subtitle { font-size: 13px; margin-bottom: 20px; }
     }
     
     @media (max-width: 480px) {
-      .container {
-        padding: 30px 20px;
-      }
-      h1 {
-        font-size: 22px;
-      }
+      .container { padding: 30px 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔐 Smart Lab Staff Login</h1>
+  <div class="container" id="loginContainer">
+    <h1>🔐 Smart Lab Login</h1>
     <p class="subtitle">
-      Login untuk staff dan admin Departemen Teknik Material & Metalurgi ITS<br><br>
+      Khusus untuk <strong>Staff</strong> dan <strong>Manajemen</strong><br>
+      Departemen Teknik Material & Metalurgi ITS
     </p>
     
     <div id="g_id_onload"
@@ -138,24 +164,71 @@
     </div>
     
     <div class="divider">
-      <span class="divider-text"></span>
+      <span class="divider-text">atau</span>
     </div>
     
-    <a href="#" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
+    <!-- Link diarahkan ke chatbot.html agar customer bisa langsung chat -->
+    <a href="chatbot.html" class="btn-chat">💬 Manfaatkan <strong>Smart Lab Assistant</strong></a>
   </div>
 
   <script src="config.js"></script>
   <script>
+    // Fungsi utama saat user berhasil login via Google
     function handleLogin(response) {
-      localStorage.setItem('g_token', response.credential);
+      // 1. Decode token untuk mendapatkan email
       const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      localStorage.setItem('user_email', payload.email);
-      localStorage.setItem('user_name', payload.name);
-      window.location.href = 'dashboard.html';
+      const email = payload.email;
+      
+      // 2. Tampilkan UI Loading
+      document.getElementById('loginContainer').innerHTML = `
+        <div class="loading-state">
+          ⏳ Memverifikasi akses Anda...<br>
+          <span>${email}</span>
+        </div>
+      `;
+      
+      // 3. Panggil fungsi backend untuk cek role di Google Sheet
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.role === 'staff' || result.role === 'manajemen') {
+            // SUKSES: Simpan data ke localStorage
+            localStorage.setItem('g_token', response.credential);
+            localStorage.setItem('user_email', result.email);
+            localStorage.setItem('user_name', result.name);
+            localStorage.setItem('user_role', result.role); // PENTING: Simpan role
+            
+            // Redirect ke dashboard
+            window.location.href = 'dashboard.html';
+          } else {
+            // GAGAL: Tampilkan pesan error dari backend
+            showError(result.error || 'Email Anda tidak terdaftar dalam sistem.');
+          }
+        })
+        .withFailureHandler(function(err) {
+          // ERROR JARINGAN/SCRIPT
+          showError('Gagal terhubung ke server: ' + err);
+        })
+        .verifyUserAndRole(email); // Memanggil fungsi yang kita buat di Code.gs
+    }
+
+    // Fungsi helper untuk menampilkan error dengan rapi
+    function showError(message) {
+      document.getElementById('loginContainer').innerHTML = `
+        <h1>⛔ Akses Ditolak</h1>
+        <div class="error-state">${message}</div>
+        <button class="btn-retry" onclick="window.location.reload()">🔄 Coba Lagi</div>
+        <div style="margin-top: 20px; font-size: 13px; color: #666;">
+          Hubungi admin lab jika Anda merasa ini adalah kesalahan.
+        </div>
+      `;
     }
     
+    // Cek saat halaman dimuat: Jika sudah login DAN punya role, langsung ke dashboard
     window.onload = function() {
-      if (localStorage.getItem('g_token')) {
+      const token = localStorage.getItem('g_token');
+      const role = localStorage.getItem('user_role');
+      
+      if (token && role) {
         window.location.href = 'dashboard.html';
       }
     };
