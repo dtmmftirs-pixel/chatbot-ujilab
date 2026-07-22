@@ -277,6 +277,9 @@
       
       if (!pesan) return;
       
+      console.log("Mengirim pesan:", pesan);
+      console.log("URL Apps Script:", APPS_SCRIPT_URL);
+      
       tampilkanPesan(pesan, 'user');
       input.value = '';
       
@@ -285,17 +288,36 @@
       
       chatHistory.push({ role: 'user', text: pesan });
       
+      // Debug: Cek apakah URL valid
+      if (!APPS_SCRIPT_URL || !APPS_SCRIPT_URL.includes('script.google.com')) {
+        console.error("URL Apps Script tidak valid!");
+        tampilkanPesan('⚠️ Konfigurasi error. URL Apps Script tidak valid.', 'bot');
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Kirim';
+        return;
+      }
+      
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           action: 'chat',
           message: pesan,
           history: chatHistory.slice(-6)
-        })
+        }),
+        mode: 'cors'
       })
-      .then(response => response.json())
+      .then(response => {
+        console.log("Response status:", response.status);
+        if (!response.ok) {
+          throw new Error('HTTP error! status: ' + response.status);
+        }
+        return response.json();
+      })
       .then(data => {
+        console.log("Response data:", data);
         if (data.success) {
           tampilkanPesan(data.reply, 'bot');
           chatHistory.push({ role: 'bot', text: data.reply });
@@ -304,8 +326,8 @@
         }
       })
       .catch(error => {
-        console.error('Error:', error);
-        tampilkanPesan('⚠️ Maaf, terjadi kesalahan koneksi.', 'bot');
+        console.error('Fetch error:', error);
+        tampilkanPesan('⚠️ Maaf, terjadi kesalahan koneksi. Periksa console untuk detail.', 'bot');
       })
       .finally(() => {
         sendBtn.disabled = false;
