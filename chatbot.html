@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Lab - Chatbot</title>
+  <title>Smart Lab - Chatbot Asisten</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -21,15 +21,13 @@
       overflow: hidden;
     }
     .header {
-      background: #1a73e8;
+      background: linear-gradient(135deg, #1a73e8 0%, #0d5bb5 100%);
       color: white;
       padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
     }
-    .header h1 { font-size: 20px; }
-    .user-info { font-size: 14px; margin-right: 15px; }
+    .header h1 { font-size: 24px; margin-bottom: 5px; }
+    .header p { font-size: 14px; opacity: 0.9; }
     .chat-box {
       height: 500px;
       overflow-y: auto;
@@ -42,6 +40,11 @@
       border-radius: 12px;
       max-width: 80%;
       word-wrap: break-word;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .message.user {
       background: #1a73e8;
@@ -73,38 +76,60 @@
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
+      transition: all 0.3s ease;
     }
     .input-area button:hover { background: #0d5bb5; }
     .input-area button:disabled { background: #ccc; cursor: not-allowed; }
-    .logout-btn {
-      background: #dc3545;
-      color: white;
-      border: none;
+    .back-link {
+      display: inline-block;
       padding: 8px 16px;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      text-decoration: none;
       border-radius: 6px;
-      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      transition: all 0.3s ease;
     }
-    .logout-btn:hover { background: #c82333; }
+    .back-link:hover { background: rgba(255,255,255,0.3); }
+    .info-banner {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 16px;
+      margin: 15px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #856404;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>💬 Smart Lab Assistant</h1>
-      <div>
-        <span class="user-info" id="userInfo"></span>
-        <button class="logout-btn" onclick="logout()">Logout</button>
-      </div>
+      <p>Departemen Teknik Material & Metalurgi ITS</p>
+      <a href="index.html" class="back-link">← Staff Login</a>
+    </div>
+    
+    <div class="info-banner">
+      💡 <strong>Tips:</strong> Tanyakan tentang harga, durasi, atau syarat pengujian laboratorium
     </div>
     
     <div class="chat-box" id="chatBox">
       <div class="message bot">
-        Halo! Saya asisten Smart Lab Teknik Material & Metalurgi ITS. Ada yang bisa dibantu?
+        <strong>Halo! 👋</strong><br><br>
+        Saya asisten virtual Smart Lab Teknik Material & Metalurgi ITS.<br><br>
+        Saya bisa membantu Anda dengan informasi:<br>
+        • Harga pengujian<br>
+        • Durasi pengerjaan<br>
+        • Syarat dan spesifikasi sampel<br>
+        • Dan informasi laboratorium lainnya<br><br>
+        <em>Silakan tanyakan apa saja!</em>
       </div>
     </div>
     
     <div class="input-area">
-      <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda..." onkeypress="handleEnter(event)">
+      <input type="text" id="userInput" placeholder="Contoh: Berapa harga uji tarik?" onkeypress="handleEnter(event)">
       <button id="sendBtn" onclick="kirimPesan()">Kirim</button>
     </div>
   </div>
