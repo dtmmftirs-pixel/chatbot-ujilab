@@ -240,8 +240,8 @@
     const name = localStorage.getItem('user_name') || 'Pengguna';
     const email = localStorage.getItem('user_email') || '';
     
-    // === BARU: Variabel global untuk menyimpan role user ===
-    let currentUserRole = 'Users';
+    // === MODIFIKASI: Default role menjadi 'User' (singular) ===
+    let currentUserRole = 'User';
     
     // 3. Tampilkan data di Header
     document.getElementById('userName').textContent = name;
@@ -265,7 +265,8 @@
         { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
         { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
-      'Users': [
+      // === MODIFIKASI: Ganti key 'Users' menjadi 'User' ===
+      'User': [
         { 
           title: '📝 Daftar Pengujian', 
           desc: 'Ajukan permohonan pengujian material baru', 
@@ -283,16 +284,22 @@
 
     // 6. Fungsi render menu
     function renderMenus(role) {
-      // === BARU: Simpan role ke variabel global ===
+      // === MODIFIKASI: Normalisasi role. Jika bukan Staff atau Manajemen, maka User ===
+      if (role !== 'Staff' && role !== 'Manajemen') {
+        role = 'User';
+      }
+      
+      // Simpan role ke variabel global
       currentUserRole = role;
       
       const menuGrid = document.getElementById('menuGrid');
       const roleBadge = document.getElementById('roleBadge');
       
+      // Tampilkan role badge (sekarang pasti 'Staff', 'Manajemen', atau 'User')
       roleBadge.textContent = role;
       roleBadge.style.display = 'inline-block';
       
-      const menus = menuData[role] || menuData['Users'];
+      const menus = menuData[role] || menuData['User'];
       menuGrid.innerHTML = '';
       
       menus.forEach(menu => {
@@ -353,8 +360,8 @@
         .then(data => {
           if (data.success) {
             if (!data.data || data.data.length === 0) {
-              // === BARU: Pesan kosong yang berbeda berdasarkan role ===
-              const emptyMsg = (currentUserRole === 'Users') 
+              // === MODIFIKASI: Cek 'User' bukan 'Users' ===
+              const emptyMsg = (currentUserRole === 'User') 
                 ? 'Anda belum mengajukan pengujian atau data sedang diproses.' 
                 : 'Belum ada data pengujian yang tercatat di sistem.';
                 
@@ -421,15 +428,18 @@
           if (data.success) {
             renderMenus(data.role);
           } else {
-            renderMenus('Users');
+            // === MODIFIKASI: Fallback ke 'User' ===
+            renderMenus('User');
           }
         })
         .catch(error => {
           console.error("Error fetching role:", error);
-          renderMenus('Users');
+          // === MODIFIKASI: Fallback ke 'User' ===
+          renderMenus('User');
         });
     } else {
-      renderMenus('Users');
+      // === MODIFIKASI: Fallback ke 'User' ===
+      renderMenus('User');
     }
     
     // 8. Fungsi logout
