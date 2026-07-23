@@ -37,8 +37,9 @@
     }
     
     .header h1 { 
-      font-size: 20px; 
+      font-size: 18px; 
       font-weight: 600;
+      line-height: 1.3;
     }
     
     .user-info { 
@@ -81,6 +82,31 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+    }
+    
+    /* === BARU: Styling untuk Banner Selamat Datang === */
+    .welcome-banner {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-left: 5px solid #1a73e8;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #0d47a1;
+      font-size: 15px;
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(26,115,232,0.1);
+    }
+    
+    .welcome-banner .icon {
+      font-size: 24px;
+    }
+    
+    .welcome-banner strong {
+      color: #1a73e8;
+      font-weight: 700;
     }
     
     .content h2 {
@@ -141,16 +167,20 @@
     </div>
     
     <div class="content">
+      <!-- === BARU: Banner Selamat Datang Dinamis === -->
+      <div class="welcome-banner" id="welcomeBanner">
+        <span class="icon">👋</span>
+        <span id="welcomeText">Memuat data pengguna...</span>
+      </div>
+
       <h2>Menu Utama</h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
       <div class="menu-grid">
-        <!--
-        <a href="widget.html" class="menu-card">
+        <a href="widget.html" target="_blank" class="menu-card">
           <h3>💬 Chatbot Asisten</h3>
           <p>Akses chatbot untuk customer</p>
         </a>
-        -->
         
         <a href="#" class="menu-card">
           <h3>📊 Dashboard Pengujian</h3>
@@ -171,19 +201,24 @@
   </div>
 
   <script>
-    // Cek sesi - jika tidak ada flag isLoggedIn, redirect ke login
+    // 1. Cek sesi - jika tidak ada flag isLoggedIn, redirect ke login
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       window.location.replace('index.html');
     }
     
-    // Tampilkan info user
+    // 2. Ambil data user dari localStorage
     const name = localStorage.getItem('user_name') || 'Pengguna';
-    const email = localStorage.getItem('user_email') || '';
+    const email = localStorage.getItem('user_email') || 'Email tidak ditemukan';
     
+    // 3. Tampilkan data di Header (Pojok Kanan Atas)
     document.getElementById('userName').textContent = name;
     document.getElementById('userEmail').textContent = email;
     
-    // Fungsi logout - TANPA CONFIRM (karena diblokir di sandboxed iframe)
+    // 4. BARU: Buat dan tampilkan pesan Selamat Datang yang dinamis
+    const welcomeMessage = `Selamat Datang <strong>${name}</strong> dengan email <strong>${email}</strong>`;
+    document.getElementById('welcomeText').innerHTML = welcomeMessage;
+    
+    // 5. Fungsi logout
     function prosesLogout() {
       // Hapus semua data sesi
       localStorage.clear();
