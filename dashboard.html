@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Lab - Dashboard</title>
-  <!-- Memuat config.js agar variabel APPS_SCRIPT_URL tersedia -->
   <script src="config.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -135,17 +134,34 @@
     .menu-card p { font-size: 13px; opacity: 0.85; line-height: 1.4; }
     .loading-menus { text-align: center; padding: 40px; color: #666; font-style: italic; }
 
-    /* === CSS untuk Tabel Status Pengujian (DIMODIFIKASI) === */
+    /* === CSS untuk Tabel Status Pengujian === */
     .status-table-container {
       overflow: auto;
       margin-top: 15px;
       border-radius: 8px;
       border: 1px solid #ddd;
-      resize: both; /* FITUR RESIZE: Bisa diperbesar/diperkecil */
+      resize: both;
       min-width: 600px;
       min-height: 300px;
       max-height: 70vh;
       position: relative;
+    }
+    
+    /* === FULL SCREEN MODE === */
+    .status-table-container.fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      min-width: 100vw;
+      min-height: 100vh;
+      max-height: 100vh;
+      z-index: 9999;
+      border-radius: 0;
+      border: none;
     }
     
     .status-table {
@@ -175,7 +191,7 @@
     .status-table tr:last-child td { border-bottom: none; }
     .status-table tr:hover td { background: #f8f9fa; }
     
-    /* === FITUR EDITABLE CELL === */
+    /* === EDITABLE CELL === */
     .editable-cell {
       cursor: pointer;
       position: relative;
@@ -202,7 +218,53 @@
       cursor: pointer;
     }
     
-    /* === TOMBOL SIMPAN === */
+    /* === TOMBOL AKSI (Maximize/Restore) === */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .btn-maximize {
+      background: #17a2b8;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-maximize:hover {
+      background: #138496;
+      transform: translateY(-1px);
+    }
+    
+    .btn-restore {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-restore:hover {
+      background: #5a6268;
+      transform: translateY(-1px);
+    }
+    
     .save-btn {
       background: #28a745;
       color: white;
@@ -257,7 +319,7 @@
       <div class="user-info">
         <div id="userName">Loading...</div>
         <div class="user-email" id="userEmail"></div>
-        <button class="logout-btn" onclick="prosesLogout()">🚪 Logout</button>
+        <button class="logout-btn" onclick="prosesLogout()"> Logout</button>
       </div>
     </div>
     
@@ -281,7 +343,12 @@
 
       <!-- === Container View Status Pengujian === -->
       <div id="statusView" style="display: none;">
-        <button class="btn-back" onclick="showMainMenu()">← Kembali ke Menu Utama</button>
+        <div class="action-buttons">
+          <button class="btn-back" onclick="showMainMenu()">← Kembali ke Menu Utama</button>
+          <!-- === TOMBOL MAXIMIZE === -->
+          <button class="btn-maximize" id="btnMaximize" onclick="toggleMaximize()">⛶ Full Screen</button>
+        </div>
+        
         <h2 id="statusViewTitle">Status Pengujian Anda</h2>
         <p id="statusViewDesc" style="color: #666; font-size: 13px; margin-bottom: 10px;">Berikut adalah riwayat pengujian yang terdaftar atas nama Anda:</p>
         
@@ -302,8 +369,8 @@
     const name = localStorage.getItem('user_name') || 'Pengguna';
     const email = localStorage.getItem('user_email') || '';
     
-    // === MODIFIKASI: Default role menjadi 'User' (singular) ===
     let currentUserRole = 'User';
+    let isMaximized = false; // State untuk track mode fullscreen
     
     // 3. Tampilkan data di Header
     document.getElementById('userName').textContent = name;
@@ -318,16 +385,15 @@
       'Manajemen': [
         { title: '📊 Monitoring Pengujian', desc: 'Pantau seluruh proses pengujian yang berjalan', action: 'comingSoon' },
         { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
-        { title: '💰 Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', action: 'comingSoon' },
+        { title: ' Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', action: 'comingSoon' },
         { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
       'Staff': [
-        { title: '📝 Status Pengujian', desc: 'Kelola dan update progres sampel pengujian', action: 'loadStatusPengujian' },
+        { title: ' Status Pengujian', desc: 'Kelola dan update progres sampel pengujian', action: 'loadStatusPengujian' },
         { title: '📊 Monitoring Pengujian', desc: 'Pantau proses pengujian yang sedang aktif', action: 'comingSoon' },
         { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
-        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
+        { title: ' Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
-      // === MODIFIKASI: Ganti key 'Users' menjadi 'User' ===
       'User': [
         { 
           title: '📝 Daftar Pengujian', 
@@ -336,7 +402,7 @@
           openInNewTab: true
         },
         { 
-          title: '📊 Status Pengujian', 
+          title: ' Status Pengujian', 
           desc: 'Cek progres dan hasil sampel pengujian Anda', 
           action: 'loadStatusPengujian' 
         },
@@ -346,7 +412,6 @@
 
     // 6. Fungsi render menu
     function renderMenus(role) {
-      // === MODIFIKASI: Normalisasi role ===
       if (role !== 'Staff' && role !== 'Manajemen') {
         role = 'User';
       }
@@ -422,28 +487,26 @@
                 
               container.innerHTML = `
                 <div class="empty-state">
-                  <div style="font-size: 40px; margin-bottom: 10px;">📭</div>
+                  <div style="font-size: 40px; margin-bottom: 10px;"></div>
                   <strong>Tidak ada data ditemukan</strong><br>
                   <span style="font-size: 13px;">${emptyMsg}</span>
                 </div>`;
               return;
             }
             
-            // === MODIFIKASI: Bangun Tabel HTML dengan fitur edit ===
             let html = '<div class="status-table-container"><table class="status-table"><thead><tr>';
             
             data.headers.forEach((header, colIndex) => {
               html += `<th>${header}</th>`;
             });
             
-            // Tambah kolom Aksi khusus Staff/Manajemen
             if (currentUserRole === 'Manajemen' || currentUserRole === 'Staff') {
               html += '<th>Aksi</th>';
             }
             html += '</tr></thead><tbody>';
             
             data.data.forEach((row, rowIndex) => {
-              const sheetRowIndex = rowIndex + 2; // Index baris di Google Sheet (1-based, +1 untuk header)
+              const sheetRowIndex = rowIndex + 2;
               html += `<tr data-row="${sheetRowIndex}">`;
               
               row.forEach((cell, colIndex) => {
@@ -454,7 +517,6 @@
                   displayValue = new Date(cell).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
                 }
                 
-                // Tentukan kolom yang bisa diedit (misal: kolom yang namanya mengandung 'status' atau kolom ke-5)
                 const headerName = data.headers[colIndex] ? data.headers[colIndex].toLowerCase() : '';
                 const isEditable = (currentUserRole === 'Manajemen' || currentUserRole === 'Staff') && (headerName.includes('status') || sheetColIndex === 5);
                 
@@ -492,7 +554,27 @@
         });
     }
 
-    // === FUNGSI BARU: Enable Edit Cell ===
+    // === FUNGSI BARU: Toggle Maximize/Restore ===
+    function toggleMaximize() {
+      const container = document.querySelector('.status-table-container');
+      const btn = document.getElementById('btnMaximize');
+      
+      isMaximized = !isMaximized;
+      
+      if (isMaximized) {
+        container.classList.add('fullscreen');
+        btn.innerHTML = '❌ Restore';
+        btn.className = 'btn-restore';
+        document.body.style.overflow = 'hidden'; // Prevent body scroll
+      } else {
+        container.classList.remove('fullscreen');
+        btn.innerHTML = '⛶ Full Screen';
+        btn.className = 'btn-maximize';
+        document.body.style.overflow = ''; // Restore body scroll
+      }
+    }
+
+    // === FUNGSI: Enable Edit Cell ===
     function enableEdit(cell) {
       if (cell.classList.contains('editing')) return;
       
@@ -502,7 +584,6 @@
       
       cell.classList.add('editing');
       
-      // Opsi untuk combobox status
       const options = ['Pending', 'Dalam Proses', 'Selesai', 'Dibatalkan', 'Menunggu Pembayaran', 'Lunas', 'Sampel Diterima', 'Sampel Diambil'];
       
       let selectHTML = `<select class="status-combobox" onchange="updateCell(this, ${row}, ${col})">`;
@@ -510,7 +591,6 @@
         const selected = (opt.toLowerCase() === currentValue.toString().toLowerCase()) ? 'selected' : '';
         selectHTML += `<option value="${opt}" ${selected}>${opt}</option>`;
       });
-      // Tambahkan nilai saat ini jika tidak ada di dalam opsi
       if (!options.some(opt => opt.toLowerCase() === currentValue.toString().toLowerCase()) && currentValue) {
          selectHTML += `<option value="${currentValue}" selected>${currentValue}</option>`;
       }
@@ -518,7 +598,6 @@
       
       cell.innerHTML = selectHTML;
       
-      // Aktifkan tombol simpan di baris ini
       const tr = cell.closest('tr');
       const saveBtn = tr.querySelector('.save-btn');
       if (saveBtn) {
@@ -526,7 +605,7 @@
       }
     }
 
-    // === FUNGSI BARU: Update Nilai Cell Sementara ===
+    // === FUNGSI: Update Nilai Cell Sementara ===
     function updateCell(select, row, col) {
       const newValue = select.value;
       const cell = select.parentElement;
@@ -534,11 +613,10 @@
       cell.classList.remove('editing');
       cell.innerHTML = `${newValue} <span style="font-size:10px; color:#28a745; display:block;">✓ Berubah</span>`;
       
-      // Highlight baris
       cell.closest('tr').style.background = '#fff3cd';
     }
 
-    // === FUNGSI BARU: Simpan Perubahan ke Google Sheet ===
+    // === FUNGSI: Simpan Perubahan ke Google Sheet ===
     function saveRow(rowIndex) {
       const tr = document.querySelector(`tr[data-row="${rowIndex}"]`);
       if (!tr) return;
@@ -558,7 +636,7 @@
       
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // text/plain lebih aman untuk menghindari CORS preflight di Apps Script
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           action: 'updateStatus',
           rowIndex: parseInt(rowIndex),
@@ -574,7 +652,6 @@
           tr.style.background = '#d4edda';
           setTimeout(() => { tr.style.background = ''; }, 2000);
           
-          // Kembalikan tampilan cell ke teks biasa
           editableCells.forEach(cell => {
              cell.innerHTML = cell.getAttribute('data-value');
           });
@@ -595,6 +672,11 @@
 
     // === Fungsi Kembali ke Menu Utama ===
     function showMainMenu() {
+      // Restore dari fullscreen jika sedang maximize
+      if (isMaximized) {
+        toggleMaximize();
+      }
+      
       document.getElementById('statusView').style.display = 'none';
       document.getElementById('menuGrid').style.display = 'grid';
       document.getElementById('menuHeader').style.display = 'block';
