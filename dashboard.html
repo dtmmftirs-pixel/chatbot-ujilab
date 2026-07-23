@@ -51,15 +51,8 @@
       gap: 6px;
     }
     
-    #userName {
-      font-weight: 600;
-      font-size: 15px;
-    }
-    
-    .user-email { 
-      font-size: 12px; 
-      opacity: 0.9; 
-    }
+    #userName { font-weight: 600; font-size: 15px; }
+    .user-email { font-size: 12px; opacity: 0.9; }
     
     .logout-btn {
       background: rgba(255, 255, 255, 0.2);
@@ -72,11 +65,7 @@
       font-weight: 600;
       transition: all 0.3s ease;
     }
-    
-    .logout-btn:hover { 
-      background: #dc3545; 
-      border-color: #dc3545;
-    }
+    .logout-btn:hover { background: #dc3545; border-color: #dc3545; }
     
     .content { 
       padding: 20px 25px;
@@ -100,15 +89,10 @@
       gap: 12px;
       box-shadow: 0 2px 8px rgba(26,115,232,0.1);
     }
-    
     .welcome-banner .icon { font-size: 24px; }
     .welcome-banner strong { color: #1a73e8; font-weight: 700; }
     
-    .content h2 {
-      font-size: 18px;
-      color: #333;
-      margin-bottom: 5px;
-    }
+    .content h2 { font-size: 18px; color: #333; margin-bottom: 5px; }
     
     .role-badge {
       display: inline-block;
@@ -140,31 +124,66 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      cursor: pointer;
     }
-    
     .menu-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 6px 15px rgba(26,115,232,0.2);
       border-color: #1a73e8;
     }
-    
-    .menu-card h3 { 
-      margin-bottom: 8px; 
-      font-size: 16px;
+    .menu-card h3 { margin-bottom: 8px; font-size: 16px; font-weight: 600; }
+    .menu-card p { font-size: 13px; opacity: 0.85; line-height: 1.4; }
+    .loading-menus { text-align: center; padding: 40px; color: #666; font-style: italic; }
+
+    /* === BARU: CSS untuk Tabel Status Pengujian === */
+    .status-table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 600px;
+    }
+    .status-table th {
+      background: #1a73e8;
+      color: white;
+      padding: 12px;
+      text-align: left;
       font-weight: 600;
     }
-    
-    .menu-card p { 
-      font-size: 13px; 
-      opacity: 0.85;
-      line-height: 1.4;
+    .status-table td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      background: white;
     }
-
-    .loading-menus {
+    .status-table tr:last-child td { border-bottom: none; }
+    
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #666;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-bottom: 15px;
+      transition: background 0.3s;
+    }
+    .btn-back:hover { background: #444; }
+    
+    .empty-state {
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       color: #666;
-      font-style: italic;
+      background: #f9f9f9;
+      border-radius: 8px;
     }
   </style>
 </head>
@@ -188,14 +207,24 @@
       <h2>Menu Utama <span id="roleBadge" class="role-badge" style="display:none;">Loading...</span></h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
-      <!-- Container menu yang akan diisi secara dinamis oleh JavaScript -->
+      <!-- Container Menu Utama -->
       <div id="menuGrid" class="menu-grid">
         <div class="loading-menus">Sedang memuat menu sesuai hak akses...</div>
+      </div>
+
+      <!-- === BARU: Container View Status Pengujian (Hidden by default) === -->
+      <div id="statusView" style="display: none;">
+        <button class="btn-back" onclick="showMainMenu()">← Kembali ke Menu Utama</button>
+        <h2>Status Pengujian Anda</h2>
+        <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Berikut adalah riwayat pengujian yang terdaftar atas nama Anda:</p>
+        
+        <div id="statusTableContainer">
+          <!-- Tabel akan di-generate di sini oleh JavaScript -->
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="config.js"></script>
   <script>
     // 1. Cek sesi
     if (localStorage.getItem('isLoggedIn') !== 'true') {
@@ -214,19 +243,19 @@
     const welcomeMessage = `Selamat Datang <strong>${name}</strong> di Smart Lab DTMM, apabila ada pertanyaan silahkan kontak <strong>Cak Mamet</strong>`;
     document.getElementById('welcomeText').innerHTML = welcomeMessage;
     
-    // 5. Definisi Menu berdasarkan Role (Gunakan 'link' bukan 'url')
+    // 5. Definisi Menu berdasarkan Role
     const menuData = {
       'Manajemen': [
-        { title: '📊 Monitoring Pengujian', desc: 'Pantau seluruh proses pengujian yang berjalan', link: '#' },
-        { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', link: '#' },
-        { title: '💰 Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', link: '#' },
-        { title: ' Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', link: '#' }
+        { title: '📊 Monitoring Pengujian', desc: 'Pantau seluruh proses pengujian yang berjalan', action: 'comingSoon' },
+        { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
+        { title: '💰 Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', action: 'comingSoon' },
+        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
       'Staff': [
-        { title: '📝 Status Pengujian', desc: 'Kelola dan update progres sampel pengujian', link: '#' },
-        { title: '📊 Monitoring Pengujian', desc: 'Pantau proses pengujian yang sedang aktif', link: '#' },
-        { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', link: '#' },
-        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', link: '#' }
+        { title: '📝 Status Pengujian', desc: 'Kelola dan update progres sampel pengujian', action: 'loadStatusPengujian' },
+        { title: '📊 Monitoring Pengujian', desc: 'Pantau proses pengujian yang sedang aktif', action: 'comingSoon' },
+        { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
+        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
       'Users': [
         { 
@@ -235,8 +264,12 @@
           link: 'https://forms.gle/Ci3s32NdwZrKcWEX9',
           openInNewTab: true
         },
-        { title: '📊 Status Pengujian', desc: 'Cek progres dan hasil sampel pengujian Anda', link: '#' },
-        { title: ' Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', link: '#' }
+        { 
+          title: '📊 Status Pengujian', 
+          desc: 'Cek progres dan hasil sampel pengujian Anda', 
+          action: 'loadStatusPengujian' 
+        },
+        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ]
     };
 
@@ -254,19 +287,16 @@
       menus.forEach(menu => {
         const card = document.createElement('div');
         card.className = 'menu-card';
-        card.style.cursor = 'pointer';
+        card.innerHTML = `<h3>${menu.title}</h3><p>${menu.desc}</p>`;
         
-        card.innerHTML = `
-          <h3>${menu.title}</h3>
-          <p>${menu.desc}</p>
-        `;
-        
-        // Event listener untuk klik
         card.addEventListener('click', function(e) {
           e.preventDefault();
           
-          if (menu.link && menu.link !== '#') {
-            // Selalu buka di tab baru untuk Google Form
+          if (menu.action === 'loadStatusPengujian') {
+            loadStatusPengujian();
+          } else if (menu.action === 'comingSoon') {
+            alert('Fitur ini sedang dalam pengembangan (Coming Soon).');
+          } else if (menu.link && menu.link !== '#') {
             if (menu.openInNewTab) {
               window.open(menu.link, '_blank', 'noopener,noreferrer');
             } else {
@@ -279,10 +309,76 @@
       });
     }
 
-    // 7. Fetch Role dari Apps Script
+    // === BARU: Fungsi Load Status Pengujian ===
+    function loadStatusPengujian() {
+      // Sembunyikan menu, tampilkan view status
+      document.getElementById('menuGrid').style.display = 'none';
+      document.getElementById('statusView').style.display = 'block';
+      
+      const container = document.getElementById('statusTableContainer');
+      container.innerHTML = '<p style="text-align:center; padding: 30px; color: #666;">⏳ Memuat data pengujian Anda...</p>';
+      
+      const fetchUrl = `${APPS_SCRIPT_URL}?action=getStatus&email=${encodeURIComponent(email)}`;
+      
+      fetch(fetchUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            if (!data.data || data.data.length === 0) {
+              container.innerHTML = `
+                <div class="empty-state">
+                  <div style="font-size: 40px; margin-bottom: 10px;">📭</div>
+                  <strong>Belum ada data pengujian</strong><br>
+                  <span style="font-size: 13px;">Anda belum mengajukan pengujian atau data sedang diproses.</span>
+                </div>`;
+              return;
+            }
+            
+            // Bangun Tabel HTML
+            let html = '<div class="status-table-container"><table class="status-table"><thead><tr>';
+            
+            // Header Tabel
+            data.headers.forEach(header => {
+              html += `<th>${header}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            // Isi Tabel
+            data.data.forEach(row => {
+              html += '<tr>';
+              row.forEach(cell => {
+                // Format jika cell adalah objek Date dari Google Sheets
+                let displayValue = cell;
+                if (cell && typeof cell === 'object' && cell.toString().includes('T')) {
+                  displayValue = new Date(cell).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+                html += `<td>${displayValue}</td>`;
+              });
+              html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+            
+          } else {
+            container.innerHTML = `<div class="empty-state" style="color: #dc3545;">⚠️ Gagal memuat data: ${data.error}</div>`;
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          container.innerHTML = '<div class="empty-state" style="color: #dc3545;">⚠️ Terjadi kesalahan koneksi. Silakan coba lagi.</div>';
+        });
+    }
+
+    // === BARU: Fungsi Kembali ke Menu Utama ===
+    function showMainMenu() {
+      document.getElementById('statusView').style.display = 'none';
+      document.getElementById('menuGrid').style.display = 'grid';
+    }
+    
+    // 7. Fetch Role dari Apps Script saat load
     if (email) {
       const fetchUrl = `${APPS_SCRIPT_URL}?action=getRole&email=${encodeURIComponent(email)}`;
-      
       fetch(fetchUrl)
         .then(response => response.json())
         .then(data => {
