@@ -135,7 +135,7 @@
     .menu-card p { font-size: 13px; opacity: 0.85; line-height: 1.4; }
     .loading-menus { text-align: center; padding: 40px; color: #666; font-style: italic; }
 
-    /* === BARU: CSS untuk Tabel Status Pengujian === */
+    /* === CSS untuk Tabel Status Pengujian === */
     .status-table-container {
       overflow-x: auto;
       margin-top: 15px;
@@ -199,20 +199,24 @@
     </div>
     
     <div class="content">
+      <!-- Banner Selamat Datang -->
       <div class="welcome-banner" id="welcomeBanner">
         <span class="icon">👋</span>
         <span id="welcomeText">Memuat data pengguna...</span>
       </div>
 
-      <h2>Menu Utama <span id="roleBadge" class="role-badge" style="display:none;">Loading...</span></h2>
-      <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
+      <!-- Header Menu Utama (Dibungkus div agar bisa disembunyikan) -->
+      <div id="menuHeader">
+        <h2>Menu Utama <span id="roleBadge" class="role-badge" style="display:none;">Loading...</span></h2>
+        <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
+      </div>
       
       <!-- Container Menu Utama -->
       <div id="menuGrid" class="menu-grid">
         <div class="loading-menus">Sedang memuat menu sesuai hak akses...</div>
       </div>
 
-      <!-- === BARU: Container View Status Pengujian (Hidden by default) === -->
+      <!-- === Container View Status Pengujian (Hidden by default) === -->
       <div id="statusView" style="display: none;">
         <button class="btn-back" onclick="showMainMenu()">← Kembali ke Menu Utama</button>
         <h2>Status Pengujian Anda</h2>
@@ -309,10 +313,14 @@
       });
     }
 
-    // === BARU: Fungsi Load Status Pengujian ===
+    // === Fungsi Load Status Pengujian ===
     function loadStatusPengujian() {
-      // Sembunyikan menu, tampilkan view status
+      // Sembunyikan menu, header menu, dan banner selamat datang
       document.getElementById('menuGrid').style.display = 'none';
+      document.getElementById('menuHeader').style.display = 'none';
+      document.getElementById('welcomeBanner').style.display = 'none';
+      
+      // Tampilkan view status
       document.getElementById('statusView').style.display = 'block';
       
       const container = document.getElementById('statusTableContainer');
@@ -370,10 +378,13 @@
         });
     }
 
-    // === BARU: Fungsi Kembali ke Menu Utama ===
+    // === Fungsi Kembali ke Menu Utama ===
     function showMainMenu() {
+      // Tampilkan kembali semua elemen yang disembunyikan
       document.getElementById('statusView').style.display = 'none';
       document.getElementById('menuGrid').style.display = 'grid';
+      document.getElementById('menuHeader').style.display = 'block';
+      document.getElementById('welcomeBanner').style.display = 'flex';
     }
     
     // 7. Fetch Role dari Apps Script saat load
