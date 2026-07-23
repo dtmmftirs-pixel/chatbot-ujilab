@@ -219,8 +219,9 @@
       <!-- === Container View Status Pengujian (Hidden by default) === -->
       <div id="statusView" style="display: none;">
         <button class="btn-back" onclick="showMainMenu()">← Kembali ke Menu Utama</button>
-        <h2>Status Pengujian Anda</h2>
-        <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Berikut adalah riwayat pengujian yang terdaftar atas nama Anda:</p>
+        <!-- ID ditambahkan agar teks bisa diubah dinamis oleh JS -->
+        <h2 id="statusViewTitle">Status Pengujian Anda</h2>
+        <p id="statusViewDesc" style="color: #666; font-size: 13px; margin-bottom: 10px;">Berikut adalah riwayat pengujian yang terdaftar atas nama Anda:</p>
         
         <div id="statusTableContainer">
           <!-- Tabel akan di-generate di sini oleh JavaScript -->
@@ -238,6 +239,9 @@
     // 2. Ambil data user
     const name = localStorage.getItem('user_name') || 'Pengguna';
     const email = localStorage.getItem('user_email') || '';
+    
+    // === BARU: Variabel global untuk menyimpan role user ===
+    let currentUserRole = 'Users';
     
     // 3. Tampilkan data di Header
     document.getElementById('userName').textContent = name;
@@ -279,6 +283,9 @@
 
     // 6. Fungsi render menu
     function renderMenus(role) {
+      // === BARU: Simpan role ke variabel global ===
+      currentUserRole = role;
+      
       const menuGrid = document.getElementById('menuGrid');
       const roleBadge = document.getElementById('roleBadge');
       
@@ -323,21 +330,39 @@
       // Tampilkan view status
       document.getElementById('statusView').style.display = 'block';
       
-      const container = document.getElementById('statusTableContainer');
-      container.innerHTML = '<p style="text-align:center; padding: 30px; color: #666;">⏳ Memuat data pengujian Anda...</p>';
+      // === BARU: Ubah judul dan deskripsi berdasarkan role ===
+      const statusTitle = document.getElementById('statusViewTitle');
+      const statusDesc = document.getElementById('statusViewDesc');
       
-      const fetchUrl = `${APPS_SCRIPT_URL}?action=getStatus&email=${encodeURIComponent(email)}`;
+      if (currentUserRole === 'Manajemen' || currentUserRole === 'Staff') {
+        statusTitle.textContent = 'Monitoring Status Pengujian';
+        statusDesc.textContent = 'Berikut adalah seluruh data riwayat pengujian di laboratorium:';
+      } else {
+        statusTitle.textContent = 'Status Pengujian Anda';
+        statusDesc.textContent = 'Berikut adalah riwayat pengujian yang terdaftar atas nama Anda:';
+      }
+      
+      const container = document.getElementById('statusTableContainer');
+      container.innerHTML = '<p style="text-align:center; padding: 30px; color: #666;">⏳ Memuat data pengujian...</p>';
+      
+      // === BARU: Tambahkan parameter &role ke URL fetch ===
+      const fetchUrl = `${APPS_SCRIPT_URL}?action=getStatus&email=${encodeURIComponent(email)}&role=${encodeURIComponent(currentUserRole)}`;
       
       fetch(fetchUrl)
         .then(response => response.json())
         .then(data => {
           if (data.success) {
             if (!data.data || data.data.length === 0) {
+              // === BARU: Pesan kosong yang berbeda berdasarkan role ===
+              const emptyMsg = (currentUserRole === 'Users') 
+                ? 'Anda belum mengajukan pengujian atau data sedang diproses.' 
+                : 'Belum ada data pengujian yang tercatat di sistem.';
+                
               container.innerHTML = `
                 <div class="empty-state">
                   <div style="font-size: 40px; margin-bottom: 10px;">📭</div>
-                  <strong>Belum ada data pengujian</strong><br>
-                  <span style="font-size: 13px;">Anda belum mengajukan pengujian atau data sedang diproses.</span>
+                  <strong>Tidak ada data ditemukan</strong><br>
+                  <span style="font-size: 13px;">${emptyMsg}</span>
                 </div>`;
               return;
             }
