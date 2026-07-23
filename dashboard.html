@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Lab - Dashboard</title>
+  <!-- Memuat config.js agar variabel APPS_SCRIPT_URL tersedia -->
+  <script src="config.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -84,7 +86,6 @@
       flex-direction: column;
     }
     
-    /* === BARU: Styling untuk Banner Selamat Datang === */
     .welcome-banner {
       background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
       border-left: 5px solid #1a73e8;
@@ -100,19 +101,25 @@
       box-shadow: 0 2px 8px rgba(26,115,232,0.1);
     }
     
-    .welcome-banner .icon {
-      font-size: 24px;
-    }
-    
-    .welcome-banner strong {
-      color: #1a73e8;
-      font-weight: 700;
-    }
+    .welcome-banner .icon { font-size: 24px; }
+    .welcome-banner strong { color: #1a73e8; font-weight: 700; }
     
     .content h2 {
       font-size: 18px;
       color: #333;
       margin-bottom: 5px;
+    }
+    
+    .role-badge {
+      display: inline-block;
+      background: #1a73e8;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 10px;
+      vertical-align: middle;
     }
     
     .menu-grid {
@@ -152,13 +159,19 @@
       opacity: 0.85;
       line-height: 1.4;
     }
+
+    .loading-menus {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Smart Lab Dashboard<br>
-      Departemen Teknik Material dan Metalurgi</h1>
+      <h1>Smart Lab Dashboard<br>Departemen Teknik Material dan Metalurgi</h1>
       <div class="user-info">
         <div id="userName">Loading...</div>
         <div class="user-email" id="userEmail"></div>
@@ -167,63 +180,116 @@
     </div>
     
     <div class="content">
-      <!-- === BARU: Banner Selamat Datang Dinamis === -->
       <div class="welcome-banner" id="welcomeBanner">
         <span class="icon">👋</span>
         <span id="welcomeText">Memuat data pengguna...</span>
       </div>
 
-      <h2>Menu Utama</h2>
+      <h2>Menu Utama <span id="roleBadge" class="role-badge" style="display:none;">Loading...</span></h2>
       <p style="color: #666; font-size: 13px;">Pilih menu yang ingin diakses:</p>
       
-      <div class="menu-grid">
-        <a href="widget.html" target="_blank" class="menu-card">
-          <h3>💬 Chatbot Asisten</h3>
-          <p>Akses chatbot untuk customer</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📊 Dashboard Pengujian</h3>
-          <p>Lihat status pengujian (Coming Soon)</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📝 Daftar Pengujian</h3>
-          <p>Kelola pengajuan pengujian (Coming Soon)</p>
-        </a>
-        
-        <a href="#" class="menu-card">
-          <h3>📖 Katalog Lab</h3>
-          <p>Lihat katalog lengkap (Coming Soon)</p>
-        </a>
+      <!-- Container menu yang akan diisi secara dinamis oleh JavaScript -->
+      <div id="menuGrid" class="menu-grid">
+        <div class="loading-menus">Sedang memuat menu sesuai hak akses...</div>
       </div>
     </div>
   </div>
 
   <script>
-    // 1. Cek sesi - jika tidak ada flag isLoggedIn, redirect ke login
+    // 1. Cek sesi
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       window.location.replace('index.html');
     }
     
     // 2. Ambil data user dari localStorage
     const name = localStorage.getItem('user_name') || 'Pengguna';
-    const email = localStorage.getItem('user_email') || 'Email tidak ditemukan';
+    const email = localStorage.getItem('user_email') || '';
     
-    // 3. Tampilkan data di Header (Pojok Kanan Atas)
+    // 3. Tampilkan data di Header
     document.getElementById('userName').textContent = name;
     document.getElementById('userEmail').textContent = email;
     
-    // 4. BARU: Buat dan tampilkan pesan Selamat Datang yang dinamis
+    // 4. Tampilkan pesan Selamat Datang
     const welcomeMessage = `Selamat Datang <strong>${name}</strong> di Smart Lab DTMM, apabila ada pertanyaan silahkan kontak <strong>Cak Mamet</strong>`;
     document.getElementById('welcomeText').innerHTML = welcomeMessage;
     
-    // 5. Fungsi logout
-    function prosesLogout() {
-      // Hapus semua data sesi
-      localStorage.clear();
+    // 5. Definisi Menu berdasarkan Role
+    const menuData = {
+      'Manajemen': [
+        { title: '📊 Monitoring Pengujian', desc: 'Pantau seluruh proses pengujian yang berjalan', link: '#' },
+        { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', link: '#' },
+        { title: '💰 Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', link: '#' },
+        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', link: '#' }
+      ],
+      'Staff': [
+        { title: '📝 Status Pengujian', desc: 'Kelola dan update progres sampel pengujian', link: '#' },
+        { title: '📊 Monitoring Pengujian', desc: 'Pantau proses pengujian yang sedang aktif', link: '#' },
+        { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', link: '#' },
+        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', link: '#' }
+      ],
+      'Users': [
+        { title: '📝 Daftar Pengujian', desc: 'Ajukan permohonan pengujian material baru', link: '#' },
+        { title: '📊 Status Pengujian', desc: 'Cek progres dan hasil sampel pengujian Anda', link: '#' },
+        { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', link: '#' }
+      ]
+    };
+
+    // 6. Fungsi untuk merender menu ke HTML
+    function renderMenus(role) {
+      const menuGrid = document.getElementById('menuGrid');
+      const roleBadge = document.getElementById('roleBadge');
       
-      // Redirect ke halaman login
+      // Tampilkan badge role
+      roleBadge.textContent = role;
+      roleBadge.style.display = 'inline-block';
+      
+      // Ambil array menu sesuai role (fallback ke 'Users' jika role tidak dikenali)
+      const menus = menuData[role] || menuData['Users'];
+      
+      // Bersihkan loading text
+      menuGrid.innerHTML = '';
+      
+      // Generate HTML untuk setiap menu
+      menus.forEach(menu => {
+        const card = document.createElement('a');
+        card.href = menu.link;
+        card.className = 'menu-card';
+        card.innerHTML = `
+          <h3>${menu.title}</h3>
+          <p>${menu.desc}</p>
+        `;
+        menuGrid.appendChild(card);
+      });
+    }
+
+    // 7. Fetch Role dari Google Apps Script
+    if (email) {
+      // Pastikan APPS_SCRIPT_URL sudah didefinisikan di config.js
+      const fetchUrl = `${APPS_SCRIPT_URL}?action=getRole&email=${encodeURIComponent(email)}`;
+      
+      fetch(fetchUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log("Role pengguna:", data.role);
+            renderMenus(data.role);
+          } else {
+            console.warn("Gagal mendapatkan role, menggunakan default 'Users'");
+            renderMenus('Users');
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching role:", error);
+          // Fallback ke Users jika terjadi error jaringan
+          renderMenus('Users');
+        });
+    } else {
+      renderMenus('Users');
+    }
+    
+    // 8. Fungsi logout
+    function prosesLogout() {
+      localStorage.clear();
       window.location.replace('index.html');
     }
   </script>
