@@ -135,17 +135,24 @@
     .loading-menus { text-align: center; padding: 40px; color: #666; font-style: italic; }
 
     /* === CSS untuk Tabel Status Pengujian === */
-    .status-table-container {
-      overflow-x: auto;
+    .status-table-wrapper {
+      overflow: auto;
       margin-top: 15px;
       border-radius: 8px;
       border: 1px solid #ddd;
+      resize: both; /* Bisa di-resize */
+      min-width: 800px;
+      min-height: 300px;
+      max-width: 100%;
+      max-height: calc(100vh - 300px);
+      position: relative;
     }
+    
     .status-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 800px;
+      table-layout: auto; /* Auto layout untuk kolom */
     }
     .status-table th {
       background: #1a73e8;
@@ -153,94 +160,117 @@
       padding: 12px;
       text-align: left;
       font-weight: 600;
+      white-space: nowrap;
     }
     .status-table td {
       padding: 12px;
       border-bottom: 1px solid #eee;
       background: white;
+      white-space: nowrap;
     }
     .status-table tr:last-child td { border-bottom: none; }
     
-    /* === EDITABLE CELLS & COMBOBOX STYLING (DIMODIFIKASI) === */
+    /* === EDITABLE CELLS & COMBOBOX === */
     .editable-cell {
       cursor: pointer;
       position: relative;
-      padding: 4px;
     }
     
     .editable-cell:hover {
       background: #fff3cd !important;
-      border-radius: 8px;
     }
     
-    .editable-cell select {
-      width: 100%;
-      padding: 10px 35px 10px 14px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
+    .status-select {
+      width: auto;
+      min-width: 120px;
+      max-width: 200px;
+      padding: 8px 32px 8px 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
       font-size: 13px;
       font-weight: 500;
-      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      background: white;
       cursor: pointer;
-      transition: all 0.3s ease;
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
-      /* Custom Arrow SVG */
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a73e8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 12px center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background-position: right 10px center;
+      transition: all 0.3s ease;
     }
     
-    .editable-cell select:hover {
+    .status-select:hover {
       border-color: #1a73e8;
-      box-shadow: 0 4px 8px rgba(26,115,232,0.15);
-      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(26,115,232,0.15);
     }
     
-    .editable-cell select:focus {
+    .status-select:focus {
       outline: none;
       border-color: #1a73e8;
-      box-shadow: 0 0 0 4px rgba(26,115,232,0.15);
-      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
     }
     
-    /* Warna border kiri berbeda untuk setiap status */
-    .editable-cell select.status-belum { border-left: 5px solid #ffc107; }
-    .editable-cell select.status-sudah { border-left: 5px solid #28a745; }
-    .editable-cell select.status-lunas { border-left: 5px solid #17a2b8; }
-    .editable-cell select.status-pending { border-left: 5px solid #fd7e14; }
-    .editable-cell select.status-proses { border-left: 5px solid #0d6efd; }
-    .editable-cell select.status-selesai { border-left: 5px solid #20c997; }
-    .editable-cell select.status-batal { border-left: 5px solid #dc3545; }
-    
-    /* Animasi untuk perubahan nilai */
-    @keyframes pulse-green {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+    /* Warna berbeda untuk setiap status */
+    .status-select[data-status="Belum"] {
+      border-left: 4px solid #dc3545;
+      color: #dc3545;
     }
     
-    .editable-cell select.changed {
-      animation: pulse-green 0.6s ease;
-      border-color: #28a745;
-      box-shadow: 0 0 0 4px rgba(40,167,69,0.15);
+    .status-select[data-status="Sudah"] {
+      border-left: 4px solid #28a745;
+      color: #28a745;
+    }
+    
+    .status-select[data-status="Lunas"] {
+      border-left: 4px solid #28a745;
+      color: #28a745;
+    }
+    
+    .status-select[data-status="Pending"] {
+      border-left: 4px solid #ffc107;
+      color: #ffc107;
+    }
+    
+    .status-select[data-status="Dalam Proses"] {
+      border-left: 4px solid #17a2b8;
+      color: #17a2b8;
+    }
+    
+    .status-select[data-status="Selesai"] {
+      border-left: 4px solid #28a745;
+      color: #28a745;
+    }
+    
+    .status-select[data-status="Dibatalkan"] {
+      border-left: 4px solid #6c757d;
+      color: #6c757d;
     }
     
     .save-btn {
-      background: #28a745;
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
       color: white;
       border: none;
-      padding: 8px 14px;
+      padding: 8px 16px;
       border-radius: 8px;
       cursor: pointer;
       font-size: 12px;
       font-weight: 600;
       transition: all 0.3s;
+      box-shadow: 0 2px 8px rgba(40,167,69,0.2);
     }
     
-    .save-btn:hover { background: #218838; transform: translateY(-1px); }
-    .save-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .save-btn:hover { 
+      background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+    }
+    .save-btn:disabled { 
+      background: #ccc; 
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
     
     .edit-hint {
       font-size: 12px;
@@ -272,6 +302,22 @@
       background: #f9f9f9;
       border-radius: 8px;
     }
+    
+    /* Resize handle indicator */
+    .resize-hint {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      font-size: 10px;
+      color: #999;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .status-table-wrapper:hover .resize-hint {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -281,13 +327,13 @@
       <div class="user-info">
         <div id="userName">Loading...</div>
         <div class="user-email" id="userEmail"></div>
-        <button class="logout-btn" onclick="prosesLogout()">🚪 Logout</button>
+        <button class="logout-btn" onclick="prosesLogout()"> Logout</button>
       </div>
     </div>
     
     <div class="content">
       <div class="welcome-banner" id="welcomeBanner">
-        <span class="icon">👋</span>
+        <span class="icon"></span>
         <span id="welcomeText">Memuat data pengguna...</span>
       </div>
 
@@ -329,12 +375,12 @@
       'Manajemen': [
         { title: '📊 Monitoring Pengujian', desc: 'Pantau seluruh proses pengujian yang berjalan', action: 'comingSoon' },
         { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
-        { title: '💰 Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', action: 'comingSoon' },
+        { title: ' Rekap Keuangan', desc: 'Laporan pendapatan dan biaya operasional lab', action: 'comingSoon' },
         { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
       'Staff': [
         { title: '📝 Status Pengujian', desc: 'Kelola dan update progres sampel pengujian', action: 'loadStatusPengujian' },
-        { title: '📊 Monitoring Pengujian', desc: 'Pantau proses pengujian yang sedang aktif', action: 'comingSoon' },
+        { title: ' Monitoring Pengujian', desc: 'Pantau proses pengujian yang sedang aktif', action: 'comingSoon' },
         { title: '🔧 Monitoring Alat', desc: 'Status, kondisi, dan jadwal penggunaan alat', action: 'comingSoon' },
         { title: '📖 Katalog Lab', desc: 'Lihat katalog lengkap pengujian dan harga', action: 'comingSoon' }
       ],
@@ -346,7 +392,7 @@
           openInNewTab: true
         },
         { 
-          title: '📊 Status Pengujian', 
+          title: ' Status Pengujian', 
           desc: 'Cek progres dan hasil sampel pengujian Anda', 
           action: 'loadStatusPengujian' 
         },
@@ -395,44 +441,6 @@
       });
     }
 
-    // === Helper untuk mendapatkan class warna status ===
-    function getStatusCode(status) {
-      const codes = {
-        'Belum': 'status-belum',
-        'Sudah': 'status-sudah',
-        'Lunas': 'status-lunas',
-        'Pending': 'status-pending',
-        'Dalam Proses': 'status-proses',
-        'Selesai': 'status-selesai',
-        'Dibatalkan': 'status-batal'
-      };
-      return codes[status] || '';
-    }
-
-    // === Fungsi untuk update styling combobox ===
-    function updateSelectStyling() {
-      document.querySelectorAll('.status-select').forEach(select => {
-        const value = select.value;
-        const originalValue = select.getAttribute('data-original');
-        
-        // Hapus semua kelas status lama
-        select.className = 'status-select';
-        
-        // Tambahkan kelas status baru
-        const statusClass = getStatusCode(value);
-        if (statusClass) {
-          select.classList.add(statusClass);
-        }
-        
-        // Tambahkan kelas changed jika nilai berbeda dari original
-        if (value !== originalValue) {
-          select.classList.add('changed');
-        } else {
-          select.classList.remove('changed');
-        }
-      });
-    }
-
     function loadStatusPengujian() {
       document.getElementById('menuGrid').style.display = 'none';
       document.getElementById('menuHeader').style.display = 'none';
@@ -474,8 +482,8 @@
               return;
             }
             
-            // Bangun Tabel HTML dengan fitur edit
-            let html = '<div class="status-table-container"><table class="status-table"><thead><tr>';
+            // Bangun Tabel HTML dengan fitur edit dan wrapper untuk resize
+            let html = '<div class="status-table-wrapper"><table class="status-table"><thead><tr>';
             
             data.headers.forEach((header, index) => {
               html += `<th>${header}</th>`;
@@ -519,12 +527,11 @@
                     options = ['Belum', 'Sudah'];
                   }
                   
-                  // Escape value untuk atribut HTML agar tidak rusak jika ada tanda kutip
+                  // Escape value untuk atribut HTML
                   const safeValue = String(cell).replace(/"/g, '&quot;');
-                  const statusClass = getStatusCode(cell);
                   
-                  // === PERBAIKAN: Tambahkan onchange untuk mengaktifkan tombol simpan ===
-                  let selectHTML = `<select class="status-select ${statusClass}" data-row="${sheetRowIndex}" data-col="${sheetColIndex}" data-original="${safeValue}" onchange="enableSaveButton(${sheetRowIndex})">`;
+                  // === PERBAIKAN: Tambahkan onchange dan data-status ===
+                  let selectHTML = `<select class="status-select" data-row="${sheetRowIndex}" data-col="${sheetColIndex}" data-original="${safeValue}" data-status="${cell}" onchange="enableSaveButton(${sheetRowIndex}, this)">`;
                   options.forEach(opt => {
                     const selected = (opt === cell) ? 'selected' : '';
                     selectHTML += `<option value="${opt}" ${selected}>${opt}</option>`;
@@ -543,16 +550,13 @@
               html += '</tr>';
             });
             
-            html += '</tbody></table></div>';
+            html += '</tbody></table><div class="resize-hint">↔️ Resize</div></div>';
             
             if (currentUserRole === 'Manajemen' || currentUserRole === 'Staff') {
-              html += `<div class="edit-hint">💡 <strong>Tips:</strong> Ubah nilai dropdown pada kolom status, lalu klik tombol "Simpan" untuk menyimpan perubahan ke Google Sheet.</div>`;
+              html += `<div class="edit-hint">💡 <strong>Tips:</strong> Ubah nilai dropdown pada kolom status, lalu klik tombol "Simpan" untuk menyimpan perubahan ke Google Sheet. Tarik sudut kanan bawah tabel untuk mengubah ukuran.</div>`;
             }
             
             container.innerHTML = html;
-            
-            // Jalankan styling awal
-            setTimeout(updateSelectStyling, 100);
             
           } else {
             container.innerHTML = `<div class="empty-state" style="color: #dc3545;">⚠️ Gagal memuat data: ${data.error}</div>`;
@@ -564,15 +568,18 @@
         });
     }
 
-    // === Fungsi Enable Tombol Simpan ===
-    function enableSaveButton(rowIndex) {
+    // === BARU: Fungsi Enable Tombol Simpan ===
+    function enableSaveButton(rowIndex, selectElement) {
       const btn = document.getElementById(`btn-save-${rowIndex}`);
       if (btn) {
         btn.disabled = false;
-        btn.textContent = '💾 Simpan';
+        btn.textContent = ' Simpan';
       }
-      // Update styling combobox
-      updateSelectStyling();
+      
+      // Update data-status untuk pewarnaan
+      if (selectElement) {
+        selectElement.setAttribute('data-status', selectElement.value);
+      }
     }
 
     // === Fungsi Simpan Row ===
@@ -607,8 +614,9 @@
             col: col,
             newValue: newValue
           });
-          // Update atribut data-original agar tidak tersimpan ulang jika tidak berubah
+          // Update atribut data-original dan data-status
           select.setAttribute('data-original', newValue);
+          select.setAttribute('data-status', newValue);
         }
       });
       
@@ -619,7 +627,7 @@
         return;
       }
       
-      console.log("Sending updates:", updates); // Debug log
+      console.log("Sending updates:", updates);
       
       // Kirim ke Apps Script
       fetch(APPS_SCRIPT_URL, {
@@ -635,7 +643,7 @@
       })
       .then(response => response.json())
       .then(data => {
-        console.log("Response:", data); // Debug log
+        console.log("Response:", data);
         if (data.success) {
           alert('✅ Data berhasil disimpan!');
           tr.style.background = '#d4edda';
